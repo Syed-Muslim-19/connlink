@@ -1,0 +1,813 @@
+<script setup>
+import { ref, computed, watch, onUnmounted } from "vue";
+import CommentDialog from "./CommentDialog.vue";
+import {// Initialize when component is created
+initializeRealTimeData();
+
+// Toggle like function./composables/useStores.js";
+import { usePostStore } from "../stores/posts.js";
+import { useGetAllPost } from "../composables/useGetAllPost.js";
+import { toast } from "vue3-toastify";
+import axios from "axios";
+
+// Get current user from auth store
+const { currentUser } = useAuth();
+
+// Get post store for deletion
+const postStore = usePostStore();
+
+// Get posts refresh function
+const { fetchAllPosts } = useGetAllPost();
+
+// Fallback to get user from localStorage if auth store is not ready
+const getCurrentUser = () => {
+  // First try auth store
+  if (currentUser.value) {
+    console.log("🔍 USER DEBUG - From auth store:", {
+      userId: currentUser.value._id,
+      username: currentUser.value.username,
+    });
+    return currentUser.value;
+  }
+
+  // Fallback to localStorage
+  try {
+    const userFromStorage = localStorage.getItem("user");
+    if (userFromStorage) {
+      const user = JSON.parse(userFromStorage);
+      console.log("🔍 USER DEBUG - From localStorage:", {
+        userId: user._id,
+        username: user.username,
+      });
+      return user;
+    }
+  } catch (e) {
+    console.log("🔴 Error parsing user from localStorage:", e);
+  }
+
+  console.log("🔴 NO USER FOUND");
+  return null;
+};
+
+// Define emits
+const emit = defineEmits(["postDeleted"]);
+
+// Props to receive post data from parent
+const props = defineProps({
+  postData: {
+    type: Object,
+    default: () => ({
+      username: "john_doe",
+      avatar: "",
+      imageUrl:
+        "https://images.pexels.com/photos/13397143/pexels-photo-13397143.jpeg",
+      likes: 124,
+      isLiked: false,
+      isBookmarked: false,
+    }),
+  },
+});
+
+// Modal state
+const showModal = ref(false);
+const showCommentDialog = ref(false);
+
+// Comment input text
+const text = ref("");
+
+// Local state for bookmark and comments
+const isBookmarked = ref(false);
+const commentsCount = ref(0);
+const localComments = ref([]);
+
+// Store the real-time likes data from socket updates
+const realtimeLikes = ref([]);
+const realtimeLikesCount = ref(0);
+
+// SIMPLE like state using ONLY props data (NO REAL-TIME for debugging)
+const isLiked = computed(() => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    console.log("🔍 NO CURRENT USER for like check");
+    return false;
+  }
+
+  // Use ONLY props data - ignore all real-time complexity
+  const likesArray = props.postData.likes || [];
+  const userHasLiked = likesArray.includes(currentUser._id);
+
+  console.log("🔍 SIMPLE LIKE STATE:", {
+    postId: props.postData._id,
+    currentUserId: currentUser._id,
+    currentUserName: currentUser.username,
+    likesArray: likesArray,
+    userHasLiked: userHasLiked,
+    propsLikes: props.postData.likes,
+  });
+
+  return userHasLiked;
+});
+
+// Simple likes count from props data
+const likesCount = computed(() => {
+  const count = props.postData.likes?.length || 0;
+  console.log("🔍 LIKES COUNT:", {
+    postId: props.postData._id,
+    count: count,
+    likesArray: props.postData.likes,
+  });
+  return count;
+});
+
+// Initialize real-time data with props data
+const initializeRealTimeData = () => {
+  if (props.postData.likes) {
+    realtimeLikes.value = [...props.postData.likes];
+    realtimeLikesCount.value = props.postData.likes.length;
+  }
+
+  // Initialize comments
+  if (props.postData.comments) {
+    commentsCount.value = props.postData.comments.length;
+    localComments.value = [...props.postData.comments];
+  }
+};
+
+// Initialize when component is created
+initializeRealTimeData();
+
+// Computed like state that always reflects the current user's actual state
+const isLiked = computed(() => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) return false;
+
+  // Use real-time data if available, otherwise use props data
+  const likesArray =
+    realtimeLikes.value.length > 0
+      ? realtimeLikes.value
+      : props.postData.likes || [];
+  const userHasLiked = likesArray.includes(currentUser._id);
+
+  console.log("� Computing like state:", {
+    postId: props.postData._id,
+    currentUserId: currentUser._id,
+    likesArray: likesArray,
+    userHasLiked: userHasLiked,
+  });
+
+  return userHasLiked;
+});
+
+// Simple likes count from props data
+const likesCount = computed(() => {
+  const count = props.postData.likes?.length || 0;
+  console.log("🔍 LIKES COUNT:", {
+    postId: props.postData._id,
+    count: count,
+    likesArray: props.postData.likes,
+  });
+  return count;
+});
+
+// Initialize real-time data with props data
+const initializeRealTimeData = () => {
+  if (props.postData.likes) {
+    realtimeLikes.value = [...props.postData.likes];
+    realtimeLikesCount.value = props.postData.likes.length;
+  }
+
+  // Initialize comments
+  if (props.postData.comments) {
+    commentsCount.value = props.postData.comments.length;
+    localComments.value = [...props.postData.comments];
+  }
+};
+
+// Initialize when component is created
+initializeRealTimeData();
+
+// Listen for real-time like updates from socket
+const handleRealTimeLikeUpdate = (event) => {
+  const likeUpdateData = event.detail;
+
+  // Only update if this is the same post
+  if (likeUpdateData.postId === props.postData._id) {
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      const userHasLiked = likeUpdateData.likes.includes(currentUser._id);
+      console.log("� Real-time like update for post:", {
+        postId: likeUpdateData.postId,
+        action: likeUpdateData.action,
+        userHasLiked,
+        newLikesCount: likeUpdateData.likesCount,
+        currentUserId: currentUser._id,
+      });
+
+      // Update like state based on real data from server
+      isLiked.value = userHasLiked;
+      likesCount.value = likeUpdateData.likesCount;
+    }
+  }
+};
+
+// Add event listener for real-time updates (TEMPORARILY DISABLED FOR DEBUGGING)
+// window.addEventListener('postLikeUpdate', handleRealTimeLikeUpdate);
+
+// Watch for changes in props.postData.comments to sync localComments
+watch(
+  () => props.postData.comments,
+  (newComments) => {
+    if (newComments && Array.isArray(newComments)) {
+      console.log(
+        "🔄 Syncing local comments with prop changes:",
+        newComments.length
+      );
+      localComments.value = newComments;
+      commentsCount.value = newComments.length;
+    }
+  },
+  { deep: true }
+);
+
+// Debug post data on component mount
+console.log("🔵 Post component mounted with data:", {
+  postId: props.postData._id,
+  caption: props.postData.caption,
+  commentsCount: props.postData.comments?.length || 0,
+  comments: props.postData.comments,
+});
+
+// Reactive post data - use props or default
+const post = computed(() => {
+  // If real post data is passed, format it for the UI
+  if (props.postData._id) {
+    return {
+      username: props.postData.author?.username || "Unknown User",
+      avatar: props.postData.author?.profilePicture || "",
+      imageUrl: props.postData.image || "",
+      caption: props.postData.caption || "",
+      likes: likesCount.value, // Use local reactive state
+      isLiked: isLiked.value, // Use local reactive state
+      isBookmarked: isBookmarked.value,
+      createdAt: props.postData.createdAt,
+      comments: localComments.value,
+      commentsCount: commentsCount.value, // Use local reactive state
+      postId: props.postData._id,
+    };
+  }
+  // Use default data for demo
+  return {
+    ...props.postData,
+    isLiked: isLiked.value,
+    isBookmarked: isBookmarked.value,
+    likes: likesCount.value || props.postData.likes || 124,
+  };
+});
+
+// Helper to format date
+const formatDate = (dateString) => {
+  if (!dateString) return "2 hours ago";
+
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+
+  if (diffInSeconds < 60) return "just now";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  return `${Math.floor(diffInSeconds / 86400)}d ago`;
+};
+
+// Functions
+const toggleModal = () => {
+  showModal.value = !showModal.value;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+};
+
+const openCommentDialog = () => {
+  console.log("🟡 Opening comment dialog for post:", post.value.postId);
+  console.log("🟡 Post data comments:", props.postData.comments);
+  console.log("🟡 Post computed comments:", post.value.comments);
+  console.log("🟡 Comments count:", post.value.comments?.length || 0);
+  showCommentDialog.value = true;
+};
+
+const closeCommentDialog = () => {
+  console.log("🟡 Closing comment dialog");
+  showCommentDialog.value = false;
+};
+
+const handleUnfollow = () => {
+  console.log("Unfollow action");
+  closeModal();
+};
+
+const handleAddToFavorite = () => {
+  console.log("Add to favorite action");
+  closeModal();
+};
+
+const handleDelete = () => {
+  console.log("Delete action");
+  closeModal();
+};
+
+// Check if current user is the author of the post
+const isPostOwner = computed(() => {
+  console.log("🟡 Checking post ownership...");
+
+  const user = getCurrentUser();
+  console.log("🟡 Current user from function:", user);
+  console.log("🟡 Current user from auth store:", currentUser.value);
+  console.log("🟡 Post data:", props.postData);
+  console.log("🟡 Post author:", props.postData.author);
+  console.log("🟡 Current user ID:", user?._id);
+  console.log("🟡 Post author ID:", props.postData.author?._id);
+
+  if (!user || !props.postData.author) {
+    console.log("🔴 Missing current user or post author");
+    console.log("🔴 User exists:", !!user);
+    console.log("🔴 Post author exists:", !!props.postData.author);
+    return false;
+  }
+
+  // Convert both IDs to strings for comparison (ObjectIds can be compared as strings)
+  const currentUserId = String(user._id);
+  const postAuthorId = String(props.postData.author._id);
+
+  console.log("🟡 Comparing IDs as strings:");
+  console.log("🟡 Current user ID (string):", currentUserId);
+  console.log("🟡 Post author ID (string):", postAuthorId);
+
+  const isOwner = currentUserId === postAuthorId;
+  console.log("🟢 Is post owner:", isOwner);
+
+  return isOwner;
+});
+
+// Delete post handler
+const deletePostHandler = async () => {
+  const user = getCurrentUser();
+
+  try {
+    console.log("🟡 Deleting post:", props.postData._id);
+
+    // Show loading toast
+    toast.info("Deleting post...", { autoClose: 1000 });
+
+    // Optimistically remove from UI first (faster UX)
+    emit("postDeleted", props.postData._id);
+    closeModal();
+
+    // Call delete API in background
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `http://localhost:3000/api/v1/post/delete/${props.postData._id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      console.log("🟢 Post deleted successfully");
+      toast.success("Post deleted successfully!");
+
+      // Also remove from store and cache
+      postStore.posts = postStore.posts.filter(
+        (post) => post._id !== props.postData._id
+      );
+      localStorage.setItem("cached_posts", JSON.stringify(postStore.posts));
+
+      // Auto refresh page after 2 seconds to update DOM
+      setTimeout(() => {
+        console.log("🔄 Auto-refreshing page after post deletion");
+        window.location.reload();
+      }, 2000);
+    } else {
+      console.log("🔴 Failed to delete post:", data.message);
+      toast.error(
+        "Failed to delete post: " + (data.message || "Unknown error")
+      );
+    }
+  } catch (error) {
+    console.log("🔴 Error deleting post:", error);
+    toast.error("Network error while deleting post");
+  }
+};
+const toggleLike = async (event) => {
+  // Get postId from props, not from parameters (to avoid event object issues)
+  const postId = props.postData._id;
+
+  try {
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      toast.error("Please log in to like posts");
+      return;
+    }
+
+    if (!postId) {
+      toast.error("Post ID not found");
+      return;
+    }
+
+    // Determine action based on current like state
+    const action = isLiked.value ? "dislike" : "like";
+
+    console.log(`🟡 ${action}ing post:`, postId);
+    console.log("🔍 LIKE DEBUG - Before API call:", {
+      currentUserId: currentUser._id,
+      currentUsername: currentUser.username,
+      postId: postId,
+      currentLikeState: isLiked.value,
+      action: action,
+    });
+
+    // API call to like/unlike the post (no optimistic updates)
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `http://localhost:3000/api/v1/post/${postId}/${action}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (res.data.success) {
+      console.log(`🟢 Post ${action}d successfully`);
+      toast.success(`Post ${action}d!`);
+      // Real-time update will happen via socket event
+    } else {
+      toast.error(res.data.message || `Failed to ${action} post`);
+    }
+  } catch (error) {
+    console.error(`🔴 Error ${action}ing post:`, error);
+    toast.error("Network error while updating like");
+  }
+};
+
+const toggleBookmark = () => {
+  isBookmarked.value = !isBookmarked.value;
+  console.log(
+    "Toggle bookmark for post:",
+    post.value.postId,
+    "bookmarked:",
+    isBookmarked.value
+  );
+};
+
+const handleCommentAdded = (comment) => {
+  console.log("Comment added:", comment);
+  // Handle the new comment if needed
+};
+
+const submitComment = async () => {
+  if (!text.value.trim()) {
+    toast.error("Please enter a comment");
+    return;
+  }
+
+  const postId = props.postData._id;
+  const commentText = text.value.trim();
+
+  try {
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      toast.error("Please log in to comment");
+      return;
+    }
+
+    if (!postId) {
+      toast.error("Post ID not found");
+      return;
+    }
+
+    console.log("🟡 Submitting comment:", commentText, "for post:", postId);
+
+    // Show loading toast
+    toast.info("Adding comment...", { autoClose: 1000 });
+
+    // Optimistic updates - clear input and increment comment count immediately
+    const originalText = text.value;
+    text.value = "";
+    const originalCommentsCount = commentsCount.value;
+    const originalLocalComments = [...localComments.value];
+
+    // Create optimistic comment
+    const optimisticComment = {
+      _id: `temp_${Date.now()}`, // Temporary ID
+      text: commentText,
+      author: {
+        _id: currentUser._id,
+        username: currentUser.username,
+        profilePicture: currentUser.profilePicture,
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    commentsCount.value += 1;
+    localComments.value.unshift(optimisticComment); // Add to beginning
+
+    // API call to add comment
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `http://localhost:3000/api/v1/post/${postId}/comment`,
+      {
+        text: commentText,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (res.data.success) {
+      console.log("🟢 Comment added successfully");
+
+      // Immediately refresh posts data to get updated comments
+      console.log("🔄 Refreshing posts data after comment");
+      await fetchAllPosts();
+
+      // Update local comments with fresh data after fetch
+      if (props.postData.comments) {
+        localComments.value = props.postData.comments;
+        console.log(
+          "🟢 Updated local comments with fresh data:",
+          localComments.value.length
+        );
+      }
+
+      toast.success("Comment added successfully!");
+    } else {
+      // Restore original values on failure
+      text.value = originalText;
+      commentsCount.value = originalCommentsCount;
+      localComments.value = originalLocalComments;
+      toast.error(res.data.message || "Failed to add comment");
+    }
+  } catch (error) {
+    // Restore original values on error
+    text.value = commentText;
+    commentsCount.value = originalCommentsCount;
+    localComments.value = originalLocalComments;
+
+    console.error("🔴 Error adding comment:", error);
+    toast.error("Network error while adding comment");
+  }
+};
+
+// Cleanup event listener when component is unmounted
+onUnmounted(() => {
+  window.removeEventListener("postLikeUpdate", handleRealTimeLikeUpdate);
+});
+</script>
+
+<template>
+  <div class="bg-white rounded-lg border border-gray-200 max-w-lg mx-auto">
+    <!-- Post Header -->
+    <div class="flex items-center justify-between p-4">
+      <div class="flex items-center space-x-3">
+        <!-- Avatar with Fallback -->
+        <div
+          v-if="!post.avatar"
+          class="w-10 h-10 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center"
+        >
+          <span class="text-white font-semibold text-sm">
+            {{ post.username.charAt(0).toUpperCase() }}
+          </span>
+        </div>
+        <img
+          v-else
+          :src="post.avatar"
+          :alt="post.username"
+          class="w-10 h-10 rounded-full object-cover"
+        />
+
+        <!-- Username -->
+        <span class="font-semibold text-gray-900">{{ post.username }}</span>
+      </div>
+
+      <!-- Three Dots Menu -->
+      <button
+        @click="toggleModal"
+        class="p-2 hover:bg-gray-100 rounded-full transition-colors"
+      >
+        <svg
+          class="w-5 h-5 text-gray-600"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Post Image -->
+    <div class="w-full h-80 bg-gray-100">
+      <img
+        :src="post.imageUrl"
+        :alt="`Post by ${post.username}`"
+        class="w-full h-full object-cover"
+      />
+    </div>
+
+    <!-- Post Actions -->
+    <div class="p-4">
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-4">
+          <!-- Like Button -->
+          <button
+            @click="toggleLike"
+            class="hover:opacity-70 transition-opacity"
+          >
+            <svg
+              class="w-6 h-6"
+              :class="post.isLiked ? 'text-red-500' : 'text-gray-800'"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                v-if="post.isLiked"
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              />
+              <path
+                v-else
+                d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zM12.1 18.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"
+              />
+            </svg>
+          </button>
+
+          <!-- Comment Button -->
+          <button
+            @click="openCommentDialog"
+            class="hover:opacity-70 transition-opacity"
+          >
+            <svg
+              class="w-6 h-6 text-gray-800"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+          </button>
+
+          <!-- Share Button -->
+          <button class="hover:opacity-70 transition-opacity">
+            <svg
+              class="w-6 h-6 text-gray-800"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Bookmark Button -->
+        <button
+          @click="toggleBookmark"
+          class="hover:opacity-70 transition-opacity"
+        >
+          <svg
+            class="w-6 h-6"
+            :class="
+              post.isBookmarked ? 'text-gray-800 fill-current' : 'text-gray-800'
+            "
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Likes Count -->
+      <div class="mb-2">
+        <span class="font-semibold text-gray-900">{{ post.likes }} likes</span>
+      </div>
+
+      <!-- Username and Caption -->
+      <div class="mb-2">
+        <span class="font-semibold text-gray-900 mr-2">{{
+          post.username
+        }}</span>
+        <span class="text-gray-900">{{
+          post.caption ||
+          "Amazing sunset view from my balcony today! Nature never fails to amaze me 🌅✨"
+        }}</span>
+      </div>
+
+      <!-- View Comments -->
+      <div class="mb-2">
+        <button
+          @click="openCommentDialog"
+          class="text-gray-500 text-sm hover:text-gray-700 transition-colors"
+        >
+          View all {{ post.commentsCount || 0 }} comments
+        </button>
+      </div>
+
+      <!-- Add Comment Input (Clean Style) -->
+      <div class="mb-2">
+        <div class="flex items-center">
+          <input
+            v-model="text"
+            type="text"
+            placeholder="Add a comment..."
+            class="flex-1 border-none outline-none text-sm placeholder-gray-300 bg-transparent text-gray-600 font-light"
+            @keyup.enter="submitComment"
+            @focus="$event.target.style.outline = 'none'"
+          />
+          <button
+            v-if="text.trim()"
+            @click="submitComment"
+            class="text-blue-500 text-sm font-medium hover:text-blue-600 ml-2"
+          >
+            Post
+          </button>
+        </div>
+      </div>
+
+      <!-- Time Posted -->
+      <div class="text-gray-500 text-xs tracking-wide">
+        {{ formatDate(post.createdAt) }}
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50"
+      @click="closeModal"
+    >
+      <div class="bg-white rounded-lg max-w-sm w-full mx-4" @click.stop>
+        <div class="py-2">
+          <!-- Delete button - only show if current user is the post owner -->
+          <button
+            v-if="isPostOwner"
+            @click="deletePostHandler"
+            class="w-full px-4 py-3 text-left text-red-600 hover:bg-gray-50 font-semibold border-b border-gray-100"
+          >
+            Delete Post
+          </button>
+          <button
+            @click="handleUnfollow"
+            class="w-full px-4 py-3 text-left text-red-600 hover:bg-gray-50 font-semibold"
+          >
+            Unfollow
+          </button>
+          <button
+            @click="handleAddToFavorite"
+            class="w-full px-4 py-3 text-left text-gray-900 hover:bg-gray-50"
+          >
+            Add to favorites
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment Dialog -->
+    <CommentDialog
+      v-if="showCommentDialog"
+      :isOpen="showCommentDialog"
+      :postData="post"
+      @close="closeCommentDialog"
+      @addComment="handleCommentAdded"
+    />
+  </div>
+</template>
+
+<style scoped></style>
