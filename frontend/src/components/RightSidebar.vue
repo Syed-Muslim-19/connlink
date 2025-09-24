@@ -4,6 +4,7 @@ import { useAuth } from "../composables/useStores.js";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { toast } from "vue3-toastify";
+import VerifiedBadge from "./VerifiedBadge.vue";
 
 // Get current user from auth store
 const { currentUser } = useAuth();
@@ -184,8 +185,9 @@ onMounted(() => {
 
             <!-- User Info -->
             <div class="flex-1 min-w-0">
-              <h3 class="text-white font-semibold text-sm truncate">
+              <h3 class="text-white font-semibold text-sm truncate flex items-center">
                 {{ currentUser?.username || "Guest" }}
+                <VerifiedBadge :isVerified="currentUser?.isVerified" size="small" />
               </h3>
               <p class="text-white/70 text-sm">
                 {{ currentUser?.bio || "Muslim Bukhari" }}
@@ -247,8 +249,9 @@ onMounted(() => {
 
               <!-- User Info -->
               <div class="flex-1 min-w-0">
-                <h5 class="text-white font-medium text-xs truncate">
+                <h5 class="text-white font-medium text-xs truncate flex items-center">
                   {{ user.username || "Unknown User" }}
+                  <VerifiedBadge :isVerified="user.isVerified" size="small" />
                 </h5>
                 <p class="text-white/60 text-xs">Suggested for you</p>
               </div>

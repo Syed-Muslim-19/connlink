@@ -29,8 +29,9 @@
             class="w-10 h-10 rounded-full object-cover"
           />
           <div>
-            <h2 class="font-semibold text-gray-900">
+            <h2 class="font-semibold text-gray-900 flex items-center">
               {{ currentUser.username }}
+              <VerifiedBadge :isVerified="currentUser.isVerified" size="small" />
             </h2>
           </div>
         </div>
@@ -94,8 +95,9 @@
                 ></div>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-gray-900 truncate">
+                <p class="font-medium text-gray-900 truncate flex items-center">
                   {{ user.username }}
+                  <VerifiedBadge :isVerified="user.isVerified" size="small" />
                 </p>
                 <p class="text-sm text-green-600 truncate">Active now</p>
               </div>
@@ -141,8 +143,9 @@
                 ></div>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-gray-700 truncate">
+                <p class="font-medium text-gray-700 truncate flex items-center">
                   {{ user.username }}
+                  <VerifiedBadge :isVerified="user.isVerified" size="small" />
                 </p>
                 <p class="text-sm text-gray-500 truncate">Offline</p>
               </div>
@@ -262,8 +265,9 @@
               class="w-10 h-10 rounded-full object-cover"
             />
             <div>
-              <h3 class="font-semibold text-gray-900">
+              <h3 class="font-semibold text-gray-900 flex items-center">
                 {{ selectedUser.username }}
+                <VerifiedBadge :isVerified="selectedUser.isVerified" size="small" />
               </h3>
               <p class="text-sm text-gray-500">Active now</p>
             </div>
@@ -363,6 +367,7 @@ import { useAuthStore } from "../stores/auth.js";
 import { useChatStore } from "../stores/chat.js";
 import { useSocketStore } from "../stores/socket.js";
 import Messages from "./Messages.vue";
+import VerifiedBadge from "./VerifiedBadge.vue";
 import axios from "axios";
 
 // Route and stores

@@ -59,8 +59,9 @@
             <User v-else class="w-full h-full p-1 text-white" />
           </div>
           <div class="cursor-pointer" @click="goToProfile(post.author?._id)">
-            <p class="font-semibold text-sm">
+            <p class="font-semibold text-sm flex items-center">
               {{ post.author?.username || "Unknown User" }}
+              <VerifiedBadge :isVerified="post.author?.isVerified" size="small" />
             </p>
             <p class="text-xs text-gray-500">
               {{ formatDate(post.createdAt) }}
@@ -148,7 +149,10 @@
 
         <!-- Caption -->
         <div class="text-sm mb-2" v-if="post.caption">
-          <span class="font-semibold">{{ post.author?.username }}</span>
+          <span class="font-semibold inline-flex items-center">
+            {{ post.author?.username }}
+            <VerifiedBadge :isVerified="post.author?.isVerified" size="small" />
+          </span>
           <span class="ml-2">{{ post.caption }}</span>
         </div>
 
@@ -165,7 +169,10 @@
             :key="comment._id"
             class="text-sm mb-1"
           >
-            <span class="font-semibold">{{ comment.author?.username }}</span>
+            <span class="font-semibold inline-flex items-center">
+              {{ comment.author?.username }}
+              <VerifiedBadge :isVerified="comment.author?.isVerified" size="small" />
+            </span>
             <span class="ml-2">{{ comment.text }}</span>
           </div>
         </div>
@@ -224,6 +231,7 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import CommentDialog from "./CommentDialog.vue";
+import VerifiedBadge from "./VerifiedBadge.vue";
 import { toast } from "vue3-toastify";
 
 const router = useRouter();

@@ -43,8 +43,9 @@
             class="w-10 h-10 rounded-full object-cover"
           />
           <div>
-            <h3 class="font-semibold text-gray-900">
+            <h3 class="font-semibold text-gray-900 flex items-center">
               {{ post.author.username }}
+              <VerifiedBadge :isVerified="post.author.isVerified" size="small" />
             </h3>
             <p class="text-sm text-gray-500">
               {{ formatDate(post.createdAt) }}
@@ -108,7 +109,10 @@
 
           <!-- Caption -->
           <p v-if="post.caption" class="text-gray-900 mb-2">
-            <span class="font-semibold">{{ post.author.username }}</span>
+            <span class="font-semibold inline-flex items-center">
+              {{ post.author.username }}
+              <VerifiedBadge :isVerified="post.author.isVerified" size="small" />
+            </span>
             {{ post.caption }}
           </p>
 
@@ -122,7 +126,10 @@
               :key="comment._id"
               class="text-sm text-gray-700"
             >
-              <span class="font-semibold">{{ comment.author.username }}</span>
+              <span class="font-semibold inline-flex items-center">
+                {{ comment.author.username }}
+                <VerifiedBadge :isVerified="comment.author.isVerified" size="small" />
+              </span>
               {{ comment.text }}
             </p>
             <button
@@ -174,6 +181,7 @@
 import { computed, onMounted } from "vue";
 import { usePostStore } from "../stores/posts.js";
 import { useAuthStore } from "../stores/auth.js";
+import VerifiedBadge from "./VerifiedBadge.vue";
 
 // Get stores
 const postStore = usePostStore();

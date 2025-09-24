@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useAuth } from "../composables/useStores.js";
+import VerifiedBadge from "./VerifiedBadge.vue";
 
 // Get current user from auth store
 const { currentUser } = useAuth();
@@ -162,9 +163,9 @@ const formatTimeAgo = (dateString) => {
                 :alt="postData?.author?.username || 'User'"
                 class="w-8 h-8 rounded-full object-cover"
               />
-              <span class="font-semibold text-sm">{{
+              <span class="font-semibold text-sm inline-flex items-center">{{
                 postData?.author?.username || "Unknown User"
-              }}</span>
+              }}<VerifiedBadge :isVerified="postData?.author?.isVerified" size="small" /></span>
             </div>
             <button
               @click="closeDialog"
@@ -204,9 +205,9 @@ const formatTimeAgo = (dateString) => {
                 />
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2 mb-1">
-                    <span class="font-semibold text-sm">{{
+                    <span class="font-semibold text-sm inline-flex items-center">{{
                       postData?.author?.username || "Unknown User"
-                    }}</span>
+                    }}<VerifiedBadge :isVerified="postData?.author?.isVerified" size="small" /></span>
                     <span class="text-xs text-gray-400">
                       {{ formatTimeAgo(postData?.createdAt) }}
                     </span>
@@ -250,9 +251,9 @@ const formatTimeAgo = (dateString) => {
                   />
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-2 mb-1">
-                      <span class="font-semibold text-sm">{{
+                      <span class="font-semibold text-sm inline-flex items-center">{{
                         comment.author?.username
-                      }}</span>
+                      }}<VerifiedBadge :isVerified="comment.author?.isVerified" size="small" /></span>
                       <span class="text-xs text-gray-400">
                         {{ formatTimeAgo(comment.createdAt) }}
                       </span>

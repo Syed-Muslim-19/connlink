@@ -7,7 +7,10 @@ import userRoute from "./routes/user.route.js";
 import postRoute from "./routes/post.route.js";
 import messageRoute from "./routes/message.route.js";
 import notificationRoute from "./routes/notification.route.js";
+import subscriptionRoute from "./routes/subscription.route.js";
+import devRoute from "./routes/dev.route.js";
 import { app, server } from "./socket/socket.js";
+import { startSubscriptionChecker } from "./services/subscriptionService.js";
 
 dotenv.config({});
 
@@ -29,8 +32,29 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
 app.use("/api/v1/notification", notificationRoute);
+app.use("/api/v1/subscription", subscriptionRoute);
+app.use("/api/v1/dev", devRoute);
+
+// Add global error handlers to prevent crashes
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  console.error('❌ Stack:', error.stack);
+  // Don't exit in development, just log the error
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit in development, just log the error
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
+});
 
 server.listen(PORT, () => {
   connectDB();
+  startSubscriptionChecker();
   console.log(`Server is running on port ${PORT}`);
 });

@@ -101,7 +101,10 @@
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <p class="text-sm text-gray-900">
-                  <span class="font-semibold">{{ notification.username }}</span>
+                  <span class="font-semibold inline-flex items-center">
+                    {{ notification.username }}
+                    <VerifiedBadge :isVerified="notification.isVerified" size="small" />
+                  </span>
                   <span v-if="notification.type === 'like'">
                     liked your post</span
                   >
@@ -150,6 +153,7 @@
 import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useNotificationStore } from "../stores/notification.js";
+import VerifiedBadge from "./VerifiedBadge.vue";
 
 const router = useRouter();
 const notificationStore = useNotificationStore();

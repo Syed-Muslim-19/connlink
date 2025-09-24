@@ -73,11 +73,11 @@ export const getHomeFeed = async (req, res) => {
 
     const posts = await Post.find({ author: { $in: followingUserIds } })
       .sort({ createdAt: -1 })
-      .populate({ path: "author", select: "username profilePicture" })
+      .populate({ path: "author", select: "username profilePicture isVerified" })
       .populate({
         path: "comments",
         sort: { createdAt: -1 },
-        populate: { path: "author", select: "username profilePicture" },
+        populate: { path: "author", select: "username profilePicture isVerified" },
       });
 
     return res.status(200).json({
@@ -108,11 +108,11 @@ export const getExploreFeed = async (req, res) => {
 
     const posts = await Post.find({ author: { $nin: followingUserIds } })
       .sort({ createdAt: -1 })
-      .populate({ path: "author", select: "username profilePicture" })
+      .populate({ path: "author", select: "username profilePicture isVerified" })
       .populate({
         path: "comments",
         sort: { createdAt: -1 },
-        populate: { path: "author", select: "username profilePicture" },
+        populate: { path: "author", select: "username profilePicture isVerified" },
       });
 
     return res.status(200).json({
@@ -132,11 +132,11 @@ export const getAllPost = async (req, res) => {
   try {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate({ path: "author", select: "username profilePicture" })
+      .populate({ path: "author", select: "username profilePicture isVerified" })
       .populate({
         path: "comments",
         sort: { createdAt: -1 },
-        populate: { path: "author", select: "username profilePicture" },
+        populate: { path: "author", select: "username profilePicture isVerified" },
       });
 
     return res
@@ -154,11 +154,11 @@ export const getUserPost = async (req, res) => {
     const authorId = req.id;
     const posts = await Post.find({ author: authorId })
       .sort({ createdAt: -1 })
-      .populate({ path: "author", select: "username profilePicture" })
+      .populate({ path: "author", select: "username profilePicture isVerified" })
       .populate({
         path: "comments",
         sort: { createdAt: -1 },
-        populate: { path: "author", select: "username profilePicture" },
+        populate: { path: "author", select: "username profilePicture isVerified" },
       });
 
     return res.status(200).json({
@@ -178,11 +178,11 @@ export const getUserPostById = async (req, res) => {
     const userId = req.params.id;
     const posts = await Post.find({ author: userId })
       .sort({ createdAt: -1 })
-      .populate({ path: "author", select: "username profilePicture" })
+      .populate({ path: "author", select: "username profilePicture isVerified" })
       .populate({
         path: "comments",
         sort: { createdAt: -1 },
-        populate: { path: "author", select: "username profilePicture" },
+        populate: { path: "author", select: "username profilePicture isVerified" },
       });
 
     return res.status(200).json({

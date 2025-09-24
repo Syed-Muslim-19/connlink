@@ -6,6 +6,7 @@ import { useUserProfile } from "../composables/useUserProfile.js";
 import { toast } from "vue3-toastify";
 import FollowersModal from "./FollowersModal.vue";
 import CommentDialog from "./CommentDialog.vue";
+import VerifiedBadge from "./VerifiedBadge.vue";
 
 // Get route and auth
 const route = useRoute();
@@ -273,8 +274,9 @@ watch(
             <div class="flex-1 max-w-2xl">
               <!-- Username Row -->
               <div class="mb-6">
-                <h1 class="text-2xl md:text-3xl font-light text-gray-800">
+                <h1 class="text-2xl md:text-3xl font-light text-gray-800 flex items-center">
                   {{ profileUser.username || "Unknown User" }}
+                  <VerifiedBadge :isVerified="profileUser.isVerified" />
                 </h1>
               </div>
               <!-- Stats Row -->

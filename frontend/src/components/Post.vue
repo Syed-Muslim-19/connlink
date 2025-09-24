@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import CommentDialog from "./CommentDialog.vue";
+import VerifiedBadge from "./VerifiedBadge.vue";
 import { useAuth } from "../composables/useStores.js";
 import { toast } from "vue3-toastify";
 import axios from "axios";
@@ -283,8 +284,9 @@ const closeModal = () => {
           class="w-10 h-10 rounded-full object-cover"
         />
         <div>
-          <p class="font-semibold text-sm">
+          <p class="font-semibold text-sm flex items-center">
             {{ postData.author?.username || "Unknown User" }}
+            <VerifiedBadge :isVerified="postData.author?.isVerified" size="small" />
           </p>
           <p class="text-xs text-gray-500">
             {{ new Date(postData.createdAt).toLocaleDateString() }}
@@ -406,9 +408,9 @@ const closeModal = () => {
       <!-- Caption -->
       <div class="mb-2">
         <p class="text-sm">
-          <span class="font-semibold">{{
+          <span class="font-semibold inline-flex items-center">{{
             postData.author?.username || "User"
-          }}</span>
+          }}<VerifiedBadge :isVerified="postData.author?.isVerified" size="small" /></span>
           {{ postData.caption || "No caption" }}
         </p>
       </div>

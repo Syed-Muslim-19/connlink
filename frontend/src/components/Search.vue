@@ -70,7 +70,10 @@
 
               <!-- User Info -->
               <div class="cursor-pointer" @click="goToProfile(user._id)">
-                <h3 class="font-semibold text-gray-900">{{ user.username }}</h3>
+                <h3 class="font-semibold text-gray-900 flex items-center">
+                  {{ user.username }}
+                  <VerifiedBadge :isVerified="user.isVerified" size="small" />
+                </h3>
                 <p class="text-sm text-gray-600">{{ user.email }}</p>
                 <p class="text-xs text-gray-500">
                   {{ user.followers?.length || 0 }} followers
@@ -165,6 +168,7 @@ import { useAuthStore } from "../stores/auth";
 import axios from "axios";
 import { User } from "lucide-vue-next";
 import { toast } from "vue3-toastify";
+import VerifiedBadge from "./VerifiedBadge.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();

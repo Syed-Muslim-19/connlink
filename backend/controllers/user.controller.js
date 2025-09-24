@@ -80,6 +80,8 @@ export const login = async (req, res) => {
       followers: user.followers,
       following: user.following,
       posts: populatedPosts,
+      isVerified: user.isVerified,
+      subscription: user.subscription,
     };
 
     return res
@@ -116,11 +118,11 @@ export const getProfile = async (req, res) => {
       .populate("bookmarks")
       .populate({
         path: "followers",
-        select: "username profilePicture"
+        select: "username profilePicture isVerified"
       })
       .populate({
         path: "following",
-        select: "username profilePicture"
+        select: "username profilePicture isVerified"
       });
 
     if (!user) {
@@ -351,7 +353,7 @@ export const getFollowers = async (req, res) => {
     const user = await User.findById(userId)
       .populate({
         path: "followers",
-        select: "username email profilePicture followers following"
+        select: "username email profilePicture followers following isVerified"
       });
 
     if (!user) {
@@ -379,7 +381,7 @@ export const getFollowing = async (req, res) => {
     const user = await User.findById(userId)
       .populate({
         path: "following",
-        select: "username email profilePicture followers following"
+        select: "username email profilePicture followers following isVerified"
       });
 
     if (!user) {
