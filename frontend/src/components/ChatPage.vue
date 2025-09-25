@@ -31,7 +31,10 @@
           <div>
             <h2 class="font-semibold text-gray-900 flex items-center">
               {{ currentUser.username }}
-              <VerifiedBadge :isVerified="currentUser.isVerified" size="small" />
+              <VerifiedBadge
+                :isVerified="currentUser.isVerified"
+                size="small"
+              />
             </h2>
           </div>
         </div>
@@ -46,7 +49,61 @@
         </p>
       </div>
 
-      <!-- Suggested Users List -->
+      <!-- Search Bar -->
+      <div class="px-4 py-3 border-b border-gray-200">
+        <div class="relative">
+          <input
+            v-model="searchQuery"
+            @input="searchUsers"
+            type="text"
+            placeholder="Search for users..."
+            class="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          />
+          <svg
+            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <!-- Clear search button -->
+          <button
+            v-if="searchQuery"
+            @click="clearSearch"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Search loading indicator -->
+        <div v-if="isSearching" class="flex items-center justify-center mt-2">
+          <div
+            class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"
+          ></div>
+          <span class="ml-2 text-xs text-gray-500">Searching...</span>
+        </div>
+      </div>
+
+      <!-- Users List -->
       <div class="flex-1 overflow-hidden">
         <div v-if="isLoadingUsers" class="p-4 text-center">
           <div
@@ -55,6 +112,66 @@
           <p class="text-gray-500 text-sm mt-2">Loading users...</p>
         </div>
 
+        <!-- Search Results -->
+        <div
+          v-else-if="searchQuery && searchResults.length > 0"
+          class="h-full space-y-1"
+        >
+          <div
+            class="px-3 py-2 text-xs font-semibold text-blue-600 uppercase tracking-wider bg-blue-50"
+          >
+            Search Results
+          </div>
+          <div
+            v-for="user in searchResults"
+            :key="user._id"
+            @click="selectUser(user)"
+            :class="[
+              'flex items-center space-x-3 p-3 cursor-pointer transition-colors',
+              selectedUser?._id === user._id
+                ? 'bg-gray-100'
+                : 'hover:bg-gray-50',
+            ]"
+          >
+            <div>
+              <div
+                v-if="!user.profilePicture"
+                class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <span class="text-white font-bold text-sm">
+                  {{ (user.username || "U").charAt(0).toUpperCase() }}
+                </span>
+              </div>
+              <img
+                v-else
+                :src="user.profilePicture"
+                :alt="user.username"
+                class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+              />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-900 truncate flex items-center">
+                {{ user.username }}
+                <VerifiedBadge :isVerified="user.isVerified" size="small" />
+              </p>
+              <p class="text-sm text-gray-500 truncate">
+                {{ user.followers?.length || 0 }} followers
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Search Results -->
+        <div
+          v-else-if="searchQuery && searchResults.length === 0 && !isSearching"
+          class="p-4 text-center"
+        >
+          <p class="text-gray-500 text-sm">
+            No users found for "{{ searchQuery }}"
+          </p>
+        </div>
+
+        <!-- Default Suggested Users -->
         <div v-else-if="suggestedUsers.length > 0" class="h-full space-y-1">
           <!-- Online Users First -->
           <div v-if="onlineUsers.length > 0">
@@ -267,7 +384,10 @@
             <div>
               <h3 class="font-semibold text-gray-900 flex items-center">
                 {{ selectedUser.username }}
-                <VerifiedBadge :isVerified="selectedUser.isVerified" size="small" />
+                <VerifiedBadge
+                  :isVerified="selectedUser.isVerified"
+                  size="small"
+                />
               </h3>
               <p class="text-sm text-gray-500">Active now</p>
             </div>
@@ -387,6 +507,10 @@ const textMessage = ref("");
 const messages = ref([]);
 const isLoadingMessages = ref(false);
 const showMobileChat = ref(false);
+const searchQuery = ref("");
+const searchResults = ref([]);
+const isSearching = ref(false);
+const searchTimeout = ref(null);
 
 // Computed property to show only online users from suggested users
 const onlineUsers = computed(() => {
@@ -530,6 +654,57 @@ const fetchSuggestedUsers = async () => {
   }
 };
 
+// Search users function
+const searchUsers = async () => {
+  // Clear previous search timeout
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
+
+  // If search query is empty, clear results
+  if (!searchQuery.value.trim()) {
+    searchResults.value = [];
+    return;
+  }
+
+  // Debounce search to avoid too many API calls
+  searchTimeout.value = setTimeout(async () => {
+    try {
+      isSearching.value = true;
+
+      const response = await axios.get(
+        `http://localhost:3000/api/v1/user/search?query=${encodeURIComponent(
+          searchQuery.value.trim()
+        )}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        searchResults.value = response.data.users || [];
+        console.log("🔍 Search results:", searchResults.value.length);
+      }
+    } catch (error) {
+      console.error("🔴 Error searching users:", error);
+      searchResults.value = [];
+    } finally {
+      isSearching.value = false;
+    }
+  }, 500); // 500ms debounce
+};
+
+// Clear search function
+const clearSearch = () => {
+  searchQuery.value = "";
+  searchResults.value = [];
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
+};
+
 // Socket.io real-time message handling
 const setupSocketListeners = () => {
   const socket = socketStore.getSocket();
@@ -645,6 +820,10 @@ onMounted(async () => {
 // Cleanup on unmount
 onUnmounted(() => {
   cleanupSocketListeners();
+  // Clean up search timeout
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
   // Clean up when component unmounts
   resetChatState();
 });
