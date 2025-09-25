@@ -184,6 +184,15 @@ const navigateToEditProfile = () => {
   router.push("/account/edit");
 };
 
+// Navigate to messages with selected user
+const navigateToMessages = () => {
+  // Navigate to chat page and pass user info
+  router.push({
+    name: "ChatPage",
+    query: { userId: profileUser.value._id },
+  });
+};
+
 // Initialize on mount and watch route changes
 onMounted(() => {
   console.log("🟡 Profile mounted with route:", route.params.id);
@@ -274,7 +283,9 @@ watch(
             <div class="flex-1 max-w-2xl">
               <!-- Username Row -->
               <div class="mb-6">
-                <h1 class="text-2xl md:text-3xl font-light text-gray-800 flex items-center">
+                <h1
+                  class="text-2xl md:text-3xl font-light text-gray-800 flex items-center"
+                >
                   {{ profileUser.username || "Unknown User" }}
                   <VerifiedBadge :isVerified="profileUser.isVerified" />
                 </h1>
@@ -356,6 +367,7 @@ watch(
                     Following
                   </button>
                   <button
+                    @click="navigateToMessages"
                     class="flex-1 px-6 py-3 text-sm font-semibold bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
                   >
                     Message

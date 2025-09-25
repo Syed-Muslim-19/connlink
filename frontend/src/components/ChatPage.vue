@@ -630,6 +630,53 @@ const selectUser = async (user) => {
   await fetchMessages(user._id);
 };
 
+// Select user by ID (used when navigating from profile message button)
+const selectUserById = async (userId) => {
+  try {
+    // First, check if user is in conversations
+    const conversationUser = conversations.value.find(
+      (conv) => conv.participant._id === userId
+    );
+
+    if (conversationUser) {
+      await selectUser(conversationUser.participant);
+      return;
+    }
+
+    // Then check if user is in suggested users
+    const suggestedUser = suggestedUsers.value.find(
+      (user) => user._id === userId
+    );
+
+    if (suggestedUser) {
+      await selectUser(suggestedUser);
+      return;
+    }
+
+    // If not found in conversations or suggested users, fetch user data from API
+    const response = await axios.get(
+      `http://localhost:3000/api/v1/user/${userId}/profile`,
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.token}`,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      await selectUser(response.data.user);
+      console.log(
+        "✅ Selected user from profile navigation:",
+        response.data.user.username
+      );
+    } else {
+      console.error("🔴 User not found:", userId);
+    }
+  } catch (error) {
+    console.error("🔴 Error selecting user by ID:", error);
+  }
+};
+
 // Go back to users list (mobile)
 const goBackToUsers = () => {
   showMobileChat.value = false;
@@ -954,9 +1001,12 @@ onMounted(async () => {
   await fetchConversations();
   await fetchSuggestedUsers();
 
-  // Only restore selected user if we're coming directly to /chat (e.g., refresh)
-  // Don't restore if navigating from another route
-  if (route.path === "/chat") {
+  // Check if userId is passed as query parameter (from Profile message button)
+  if (route.query.userId) {
+    await selectUserById(route.query.userId);
+  } else if (route.path === "/chat") {
+    // Only restore selected user if we're coming directly to /chat (e.g., refresh)
+    // Don't restore if navigating from another route
     await restoreSelectedUser();
   }
 
