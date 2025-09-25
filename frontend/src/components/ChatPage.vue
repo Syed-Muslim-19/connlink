@@ -11,35 +11,6 @@
           : 'flex w-full h-full md:w-80 md:border-r md:border-gray-200',
       ]"
     >
-      <!-- Current User Header -->
-      <div class="p-4 border-b border-gray-200">
-        <div class="flex items-center space-x-3">
-          <div
-            v-if="!currentUser.profilePicture"
-            class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
-          >
-            <span class="text-white font-bold text-sm">
-              {{ (currentUser.username || "U").charAt(0).toUpperCase() }}
-            </span>
-          </div>
-          <img
-            v-else
-            :src="currentUser.profilePicture"
-            :alt="currentUser.username"
-            class="w-10 h-10 rounded-full object-cover"
-          />
-          <div>
-            <h2 class="font-semibold text-gray-900 flex items-center">
-              {{ currentUser.username }}
-              <VerifiedBadge
-                :isVerified="currentUser.isVerified"
-                size="small"
-              />
-            </h2>
-          </div>
-        </div>
-      </div>
-
       <!-- Messages Header -->
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="font-semibold text-gray-900">Messages</h3>
@@ -469,12 +440,11 @@
                   size="small"
                 />
               </h3>
-              <p class="text-sm text-gray-500">Active now</p>
             </div>
             <div class="flex-1"></div>
             <!-- Header Actions -->
             <div class="flex items-center space-x-4">
-              <button class="p-2 hover:bg-gray-100 rounded-full">
+              <!-- <button class="p-2 hover:bg-gray-100 rounded-full">
                 <svg
                   class="w-5 h-5 text-gray-600"
                   fill="none"
@@ -518,7 +488,7 @@
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-              </button>
+              </button> -->
             </div>
           </div>
         </div>
@@ -575,9 +545,17 @@ const route = useRoute();
 const authStore = useAuthStore();
 const chatStore = useChatStore();
 const socketStore = useSocketStore();
-const currentUser = computed(
-  () => authStore.currentUser || authStore.user || {}
-);
+const currentUser = computed(() => {
+  const user = authStore.currentUser || authStore.user || {};
+  console.log("🔍 Computing currentUser:", {
+    hasCurrentUser: !!authStore.currentUser,
+    hasUser: !!authStore.user,
+    finalUser: user,
+    profilePicture: user.profilePicture,
+    username: user.username,
+  });
+  return user;
+});
 
 // Reactive state
 const selectedUser = ref(null);
@@ -862,6 +840,28 @@ const clearSearch = () => {
   }
 };
 
+// Handle profile picture load error
+const handleImageError = (event) => {
+  console.log("🔴 Profile picture failed to load:", event.target.src);
+  console.log("🟡 Current user data:", currentUser.value);
+  console.log("🔴 Image error event:", event);
+  // Hide the broken image by setting display to none, let fallback show
+  event.target.style.display = "none";
+  // Force re-render by updating a reactive property
+  console.log("🔄 Forcing fallback display");
+};
+
+// Handle profile picture load success
+const handleImageLoad = (event) => {
+  console.log("✅ Profile picture loaded successfully:", event.target.src);
+  console.log(
+    "✅ Image dimensions:",
+    event.target.naturalWidth,
+    "x",
+    event.target.naturalHeight
+  );
+};
+
 // Format message time utility
 const formatMessageTime = (timestamp) => {
   const date = new Date(timestamp);
@@ -991,6 +991,9 @@ watch(
 onMounted(async () => {
   console.log("🟡 ChatPage mounted");
   console.log("🟡 Current user:", currentUser.value);
+  console.log("🟡 Profile picture URL:", currentUser.value.profilePicture);
+  console.log("🟡 Auth store user:", authStore.user);
+  console.log("🟡 Auth store currentUser:", authStore.currentUser);
 
   if (!currentUser.value._id) {
     console.error("🔴 Please log in to access chat");

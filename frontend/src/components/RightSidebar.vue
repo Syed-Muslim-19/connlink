@@ -185,9 +185,14 @@ onMounted(() => {
 
             <!-- User Info -->
             <div class="flex-1 min-w-0">
-              <h3 class="text-white font-semibold text-sm truncate flex items-center">
+              <h3
+                class="text-white font-semibold text-sm truncate flex items-center"
+              >
                 {{ currentUser?.username || "Guest" }}
-                <VerifiedBadge :isVerified="currentUser?.isVerified" size="small" />
+                <VerifiedBadge
+                  :isVerified="currentUser?.isVerified"
+                  size="small"
+                />
               </h3>
               <p class="text-white/70 text-sm">
                 {{ currentUser?.bio || "Muslim Bukhari" }}
@@ -249,7 +254,9 @@ onMounted(() => {
 
               <!-- User Info -->
               <div class="flex-1 min-w-0">
-                <h5 class="text-white font-medium text-xs truncate flex items-center">
+                <h5
+                  class="text-white font-medium text-xs truncate flex items-center"
+                >
                   {{ user.username || "Unknown User" }}
                   <VerifiedBadge :isVerified="user.isVerified" size="small" />
                 </h5>
@@ -274,25 +281,9 @@ onMounted(() => {
           <!-- Footer Links - Compact version -->
           <div class="mt-4 pt-4 border-t border-white/20 flex-shrink-0">
             <div class="text-white/40 text-sm">
-              <div class="flex flex-wrap gap-x-2 gap-y-1 mb-2">
-                <a href="#" class="hover:text-white/60 transition-colors"
-                  >About</a
-                >
-                <span>•</span>
-                <a href="#" class="hover:text-white/60 transition-colors"
-                  >Help</a
-                >
-                <span>•</span>
-                <a href="#" class="hover:text-white/60 transition-colors"
-                  >Press</a
-                >
-                <span>•</span>
-                <a href="#" class="hover:text-white/60 transition-colors"
-                  >API</a
-                >
-              </div>
+              <div class="flex flex-wrap gap-x-2 gap-y-1 mb-2"></div>
               <div>
-                <p class="text-white/30">© 2025 PL-Media from Meta</p>
+                <p class="text-white/30">© 2025 ConnLink</p>
               </div>
             </div>
           </div>

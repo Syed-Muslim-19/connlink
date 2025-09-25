@@ -460,9 +460,22 @@ const handleUpgrade = async () => {
           :class="isCollapsed ? 'justify-center' : ''"
         >
           <div
-            class="w-10 h-10 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center"
+            class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-r from-pink-400 to-purple-500"
           >
-            <span class="text-white font-semibold">{{ userInitial }}</span>
+            <img
+              v-if="user.value && user.value.profilePicture"
+              :src="user.value.profilePicture"
+              alt="Profile Picture"
+              class="w-10 h-10 object-cover rounded-full"
+              @error="
+                (e) => {
+                  e.target.style.display = 'none';
+                }
+              "
+            />
+            <span v-else class="text-white font-semibold">{{
+              userInitial
+            }}</span>
           </div>
           <div v-if="!isCollapsed" class="ml-3 flex-1">
             <p class="text-sm font-semibold text-white">{{ displayName }}</p>
