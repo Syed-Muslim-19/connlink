@@ -54,7 +54,10 @@
           <div class="cursor-pointer" @click="goToProfile(post.author?._id)">
             <p class="font-semibold text-sm flex items-center">
               {{ post.author?.username || "Unknown User" }}
-              <VerifiedBadge :isVerified="post.author?.isVerified" size="small" />
+              <VerifiedBadge
+                :isVerified="post.author?.isVerified"
+                size="small"
+              />
             </p>
             <p class="text-xs text-gray-500">
               {{ formatDate(post.createdAt) }}
@@ -157,9 +160,6 @@
             >
               <MessageCircle class="w-6 h-6" />
             </button>
-            <button class="hover:text-green-500 transition-colors p-1">
-              <Send class="w-6 h-6" />
-            </button>
           </div>
           <button
             @click="bookmarkPost(post._id)"
@@ -261,7 +261,6 @@ import { useAuthStore } from "../stores/auth";
 import {
   Heart,
   MessageCircle,
-  Send,
   Bookmark,
   User,
   Camera,
@@ -422,7 +421,7 @@ const likePost = async (postId) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        withCredentials: true
+        withCredentials: true,
       }
     );
 
@@ -433,7 +432,9 @@ const likePost = async (postId) => {
       // Update like status for current user only
       if (responseData.isLiked) {
         // Add user ID to likes array if not already present
-        if (!post.likes.some(like => (like._id || like) === authStore.user._id)) {
+        if (
+          !post.likes.some((like) => (like._id || like) === authStore.user._id)
+        ) {
           post.likes.push(authStore.user._id);
         }
         toast.success("Post liked!");
@@ -447,8 +448,10 @@ const likePost = async (postId) => {
 
       // Update the visual like count for current user immediately
       // Socket listeners will handle updates for other users
-      const likeElements = document.querySelectorAll(`[data-post-id="${postId}"] .likes-count`);
-      likeElements.forEach(el => {
+      const likeElements = document.querySelectorAll(
+        `[data-post-id="${postId}"] .likes-count`
+      );
+      likeElements.forEach((el) => {
         if (el) el.textContent = responseData.likesCount;
       });
     }
@@ -636,15 +639,19 @@ onMounted(() => {
       }
 
       // Update the like count for this post for other users
-      const postIndex = posts.value.findIndex(p => p._id === data.postId);
+      const postIndex = posts.value.findIndex((p) => p._id === data.postId);
       if (postIndex !== -1) {
         // Update the visual like count only - don't change the user's like state
-        const likeElements = document.querySelectorAll(`[data-post-id="${data.postId}"] .likes-count`);
-        likeElements.forEach(el => {
+        const likeElements = document.querySelectorAll(
+          `[data-post-id="${data.postId}"] .likes-count`
+        );
+        likeElements.forEach((el) => {
           if (el) el.textContent = data.likesCount;
         });
 
-        toast.info(`Post ${data.action === 'like' ? 'liked' : 'unliked'} by another user`);
+        toast.info(
+          `Post ${data.action === "like" ? "liked" : "unliked"} by another user`
+        );
       }
     };
 

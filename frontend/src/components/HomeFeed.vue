@@ -11,12 +11,25 @@
     <!-- Empty State for Home Feed -->
     <div v-if="!loading && posts.length === 0" class="text-center py-12">
       <div class="mb-6">
-        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.196-2.121M9 20h8v-2a3 3 0 00-2.464-2.948M9 20H4v-2a3 3 0 015.196-2.121M9 20v-1a3 3 0 012.828-2.77M9 20v-1a3 3 0 012.828-2.77M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        <svg
+          class="w-16 h-16 mx-auto text-gray-300 mb-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.196-2.121M9 20h8v-2a3 3 0 00-2.464-2.948M9 20H4v-2a3 3 0 015.196-2.121M9 20v-1a3 3 0 012.828-2.77M9 20v-1a3 3 0 012.828-2.77M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+          ></path>
         </svg>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">Your feed is empty</h3>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">
+          Your feed is empty
+        </h3>
         <p class="text-gray-500 mb-6 max-w-md mx-auto">
-          Follow other users to see their posts in your home feed, or check out the Explore tab to discover new content!
+          Follow other users to see their posts in your home feed, or check out
+          the Explore tab to discover new content!
         </p>
         <button
           @click="goToExplore"
@@ -61,7 +74,10 @@
           <div class="cursor-pointer" @click="goToProfile(post.author?._id)">
             <p class="font-semibold text-sm flex items-center">
               {{ post.author?.username || "Unknown User" }}
-              <VerifiedBadge :isVerified="post.author?.isVerified" size="small" />
+              <VerifiedBadge
+                :isVerified="post.author?.isVerified"
+                size="small"
+              />
             </p>
             <p class="text-xs text-gray-500">
               {{ formatDate(post.createdAt) }}
@@ -122,9 +138,6 @@
             >
               <MessageCircle class="w-6 h-6" />
             </button>
-            <button class="hover:text-gray-600 transition-colors p-1">
-              <Send class="w-6 h-6" />
-            </button>
           </div>
           <button
             @click="bookmarkPost(post._id)"
@@ -133,10 +146,7 @@
               isBookmarked(post) ? 'text-blue-500' : '',
             ]"
           >
-            <Bookmark
-              v-if="isBookmarked(post)"
-              class="w-6 h-6 fill-current"
-            />
+            <Bookmark v-if="isBookmarked(post)" class="w-6 h-6 fill-current" />
             <Bookmark v-else class="w-6 h-6" />
           </button>
         </div>
@@ -171,15 +181,23 @@
           >
             <span class="font-semibold inline-flex items-center">
               {{ comment.author?.username }}
-              <VerifiedBadge :isVerified="comment.author?.isVerified" size="small" />
+              <VerifiedBadge
+                :isVerified="comment.author?.isVerified"
+                size="small"
+              />
             </span>
             <span class="ml-2">{{ comment.text }}</span>
           </div>
         </div>
 
         <!-- Quick Comment -->
-        <form @submit.prevent="addQuickComment(post._id)" class="flex items-center space-x-2 mt-3">
-          <div class="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+        <form
+          @submit.prevent="addQuickComment(post._id)"
+          class="flex items-center space-x-2 mt-3"
+        >
+          <div
+            class="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0"
+          >
             <img
               v-if="authStore.user?.profilePicture"
               :src="authStore.user.profilePicture"
@@ -222,14 +240,7 @@ import { useRouter } from "vue-router";
 import { useSocketStore } from "../stores/socket.js";
 import axios from "axios";
 import { useAuthStore } from "../stores/auth";
-import {
-  Heart,
-  MessageCircle,
-  Send,
-  Bookmark,
-  User,
-  Trash2,
-} from "lucide-vue-next";
+import { Heart, MessageCircle, Bookmark, User, Trash2 } from "lucide-vue-next";
 import CommentDialog from "./CommentDialog.vue";
 import VerifiedBadge from "./VerifiedBadge.vue";
 import { toast } from "vue3-toastify";
@@ -273,15 +284,12 @@ const fetchHomeFeed = async () => {
       return;
     }
 
-    const response = await axios.get(
-      "http://localhost:3000/api/v1/post/home",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      }
-    );
+    const response = await axios.get("http://localhost:3000/api/v1/post/home", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
 
     if (response.data.success) {
       posts.value = response.data.posts || [];
@@ -319,7 +327,7 @@ const likePost = async (postId) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        withCredentials: true
+        withCredentials: true,
       }
     );
 
@@ -327,7 +335,9 @@ const likePost = async (postId) => {
       const responseData = response.data;
 
       if (responseData.isLiked) {
-        if (!post.likes.some(like => (like._id || like) === authStore.user._id)) {
+        if (
+          !post.likes.some((like) => (like._id || like) === authStore.user._id)
+        ) {
           post.likes.push(authStore.user._id);
         }
         toast.success("Post liked!");
@@ -338,8 +348,10 @@ const likePost = async (postId) => {
         toast.success("Post unliked!");
       }
 
-      const likeElements = document.querySelectorAll(`[data-post-id="${postId}"] .likes-count`);
-      likeElements.forEach(el => {
+      const likeElements = document.querySelectorAll(
+        `[data-post-id="${postId}"] .likes-count`
+      );
+      likeElements.forEach((el) => {
         if (el) el.textContent = responseData.likesCount;
       });
     }
@@ -525,14 +537,18 @@ onMounted(() => {
         return;
       }
 
-      const postIndex = posts.value.findIndex(p => p._id === data.postId);
+      const postIndex = posts.value.findIndex((p) => p._id === data.postId);
       if (postIndex !== -1) {
-        const likeElements = document.querySelectorAll(`[data-post-id="${data.postId}"] .likes-count`);
-        likeElements.forEach(el => {
+        const likeElements = document.querySelectorAll(
+          `[data-post-id="${data.postId}"] .likes-count`
+        );
+        likeElements.forEach((el) => {
           if (el) el.textContent = data.likesCount;
         });
 
-        toast.info(`Post ${data.action === 'like' ? 'liked' : 'unliked'} by another user`);
+        toast.info(
+          `Post ${data.action === "like" ? "liked" : "unliked"} by another user`
+        );
       }
     };
 

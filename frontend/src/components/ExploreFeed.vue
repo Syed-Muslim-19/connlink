@@ -123,7 +123,7 @@ import { useRouter } from "vue-router";
 import { useSocketStore } from "../stores/socket.js";
 import axios from "axios";
 import { useAuthStore } from "../stores/auth";
-import { Heart, MessageCircle, Send, Bookmark, User } from "lucide-vue-next";
+import { Heart, MessageCircle, Bookmark, User } from "lucide-vue-next";
 import CommentDialog from "./CommentDialog.vue";
 import { toast } from "vue3-toastify";
 
