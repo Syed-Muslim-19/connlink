@@ -171,14 +171,87 @@
           </p>
         </div>
 
-        <!-- Default Suggested Users -->
-        <div v-else-if="suggestedUsers.length > 0" class="h-full space-y-1">
-          <!-- Online Users First -->
-          <div v-if="onlineUsers.length > 0">
+        <!-- Default View: Conversations + Suggested Users -->
+        <div v-else class="h-full space-y-1">
+          <!-- Recent Conversations -->
+          <div v-if="conversations.length > 0">
+            <div
+              class="px-3 py-2 text-xs font-semibold text-purple-600 uppercase tracking-wider bg-purple-50"
+            >
+              Recent Chats
+            </div>
+            <div
+              v-for="conversation in conversations"
+              :key="conversation._id"
+              @click="selectUser(conversation.participant)"
+              :class="[
+                'flex items-center space-x-3 p-3 cursor-pointer transition-colors border-b border-gray-100',
+                selectedUser?._id === conversation.participant._id
+                  ? 'bg-purple-50'
+                  : 'hover:bg-gray-50',
+              ]"
+            >
+              <div class="relative">
+                <div
+                  v-if="!conversation.participant.profilePicture"
+                  class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0"
+                >
+                  <span class="text-white font-bold text-sm">
+                    {{
+                      (conversation.participant.username || "U")
+                        .charAt(0)
+                        .toUpperCase()
+                    }}
+                  </span>
+                </div>
+                <img
+                  v-else
+                  :src="conversation.participant.profilePicture"
+                  :alt="conversation.participant.username"
+                  class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                />
+                <!-- Online indicator -->
+                <div
+                  v-if="
+                    chatStore.onlineUsers.includes(conversation.participant._id)
+                  "
+                  class="absolute -bottom-0 -right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"
+                ></div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-900 truncate flex items-center">
+                  {{ conversation.participant.username }}
+                  <VerifiedBadge
+                    :isVerified="conversation.participant.isVerified"
+                    size="small"
+                  />
+                </p>
+                <p class="text-sm text-gray-500 truncate">
+                  {{
+                    conversation.lastMessage
+                      ? (conversation.lastMessage.senderId === currentUser._id
+                          ? "You: "
+                          : "") + conversation.lastMessage.message
+                      : "No messages yet"
+                  }}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
+                  {{
+                    conversation.lastMessage
+                      ? formatMessageTime(conversation.lastMessage.createdAt)
+                      : ""
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Online Users from Suggested (only show if we have suggested users) -->
+          <div v-if="onlineUsers.length > 0 && suggestedUsers.length > 0">
             <div
               class="px-3 py-2 text-xs font-semibold text-green-600 uppercase tracking-wider bg-green-50"
             >
-              Online
+              {{ conversations.length > 0 ? "Online Now" : "Online" }}
             </div>
             <div
               v-for="user in onlineUsers"
@@ -270,8 +343,15 @@
           </div>
         </div>
 
-        <!-- No Users State -->
-        <div v-else class="p-8 text-center">
+        <!-- No Users State - when no conversations, no online users, and no offline users -->
+        <div
+          v-if="
+            conversations.length === 0 &&
+            onlineUsers.length === 0 &&
+            offlineUsers.length === 0
+          "
+          class="p-8 text-center"
+        >
           <div class="mb-4">
             <div
               class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto"
@@ -502,7 +582,9 @@ const currentUser = computed(
 // Reactive state
 const selectedUser = ref(null);
 const suggestedUsers = ref([]);
+const conversations = ref([]);
 const isLoadingUsers = ref(false);
+const isLoadingConversations = ref(false);
 const textMessage = ref("");
 const messages = ref([]);
 const isLoadingMessages = ref(false);
@@ -593,6 +675,9 @@ const sendMessageHandler = async () => {
       messages.value.push(newMessage);
       textMessage.value = "";
 
+      // Refresh conversations to update the conversation order and last message
+      await fetchConversations();
+
       console.log("✅ Message sent successfully");
     }
   } catch (error) {
@@ -625,6 +710,31 @@ const fetchMessages = async (userId) => {
     messages.value = [];
   } finally {
     isLoadingMessages.value = false;
+  }
+};
+
+// Fetch conversations
+const fetchConversations = async () => {
+  try {
+    isLoadingConversations.value = true;
+
+    const response = await axios.get(
+      "http://localhost:3000/api/v1/message/conversations",
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.token}`,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      conversations.value = response.data.conversations || [];
+      console.log("💬 Conversations loaded:", conversations.value.length);
+    }
+  } catch (error) {
+    console.error("🔴 Error fetching conversations:", error);
+  } finally {
+    isLoadingConversations.value = false;
   }
 };
 
@@ -705,6 +815,37 @@ const clearSearch = () => {
   }
 };
 
+// Format message time utility
+const formatMessageTime = (timestamp) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = now - date;
+
+  // Less than 1 minute
+  if (diff < 60000) return "now";
+
+  // Less than 1 hour
+  if (diff < 3600000) {
+    const minutes = Math.floor(diff / 60000);
+    return `${minutes}m`;
+  }
+
+  // Less than 24 hours
+  if (diff < 86400000) {
+    const hours = Math.floor(diff / 3600000);
+    return `${hours}h`;
+  }
+
+  // Less than 7 days
+  if (diff < 604800000) {
+    const days = Math.floor(diff / 86400000);
+    return `${days}d`;
+  }
+
+  // More than 7 days - show date
+  return date.toLocaleDateString();
+};
+
 // Socket.io real-time message handling
 const setupSocketListeners = () => {
   const socket = socketStore.getSocket();
@@ -721,6 +862,9 @@ const setupSocketListeners = () => {
       ) {
         messages.value.push(newMessage);
       }
+
+      // Refresh conversations to update the conversation order and last message
+      fetchConversations();
     });
 
     // Listen for online users updates - refresh messages when users come online
@@ -806,6 +950,8 @@ onMounted(async () => {
     return;
   }
 
+  // Fetch conversations first, then suggested users
+  await fetchConversations();
   await fetchSuggestedUsers();
 
   // Only restore selected user if we're coming directly to /chat (e.g., refresh)
