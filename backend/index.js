@@ -18,20 +18,28 @@ const PORT = process.env.PORT || 3000;
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Welcome to the API" });
 });
-//Middleware
-app.use(express.json());
-app.use(cookieParser());
-app.use(urlencoded({ extended: true }));
+
+// CORS middleware first
 const corsOptions = {
   origin: "http://localhost:5173",
   credentials: true,
 };
 app.use(cors(corsOptions));
-//API
+
+// Stripe webhook route BEFORE express.json() middleware
+app.use("/api/v1/subscription/webhook", express.raw({ type: 'application/json' }), subscriptionRoute);
+
+// Standard middleware for other routes
+app.use(express.json());
+app.use(cookieParser());
+app.use(urlencoded({ extended: true }));
+
+// Other API routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
 app.use("/api/v1/notification", notificationRoute);
+// Subscription routes (excluding webhook which is handled above)
 app.use("/api/v1/subscription", subscriptionRoute);
 app.use("/api/v1/dev", devRoute);
 

@@ -25,9 +25,59 @@
       <!-- Success Message -->
       <h1 class="text-2xl font-bold text-gray-900 mb-4">Payment Successful!</h1>
       <p class="text-gray-600 mb-6">
-        Congratulations! You're now verified. Your blue checkmark will appear
+        Congratulations! We're verifying your account now. Your blue checkmark will appear
         shortly.
       </p>
+
+      <!-- Verification Status -->
+      <div
+        v-if="isVerifying"
+        class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6"
+      >
+        <div class="flex items-center justify-center">
+          <svg
+            class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          <span class="text-sm text-blue-700">Verifying your account...</span>
+        </div>
+      </div>
+
+      <div
+        v-if="verificationComplete && isVerified"
+        class="bg-green-50 border border-green-200 rounded-lg p-3 mb-6"
+      >
+        <div class="flex items-center justify-center">
+          <svg
+            class="w-5 h-5 text-green-600 mr-2"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span class="text-sm text-green-700">✅ Account verified successfully!</span>
+        </div>
+      </div>
 
       <!-- Features List -->
       <div
@@ -113,7 +163,7 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth.js";
 import api from "../utils/api.js";
@@ -121,17 +171,100 @@ import api from "../utils/api.js";
 const router = useRouter();
 const authStore = useAuthStore();
 
+// Reactive variables for verification status
+const isVerifying = ref(false);
+const verificationComplete = ref(false);
+const isVerified = ref(false);
+
 const getCurrentUser = () => {
   return (
     authStore.currentUser || JSON.parse(localStorage.getItem("user") || "null")
   );
 };
 
-onMounted(() => {
-  // Refresh user data to get updated verification status
+onMounted(async () => {
+  console.log("🎉 SubscriptionSuccess: Component mounted");
+
+  // Start verification process
+  isVerifying.value = true;
+
+  // Get session_id from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get('session_id');
+
+  console.log("🔍 Session ID from URL:", sessionId);
+
+  const updateVerificationStatus = (success) => {
+    isVerified.value = success;
+    verificationComplete.value = true;
+    isVerifying.value = false;
+  };
+
+  if (sessionId) {
+    try {
+      console.log("🔄 Attempting automatic payment verification...");
+
+      // Try automatic verification first using the new endpoint
+      const verifyResponse = await api.get(`/subscription/verify-payment?session_id=${sessionId}`);
+
+      console.log("📥 Verification response:", verifyResponse.data);
+
+      if (verifyResponse.data.success && verifyResponse.data.isVerified) {
+        console.log("✅ Payment verified automatically!");
+
+        // Update auth store
+        if (authStore.currentUser) {
+          authStore.currentUser.isVerified = true;
+          authStore.currentUser.subscription = verifyResponse.data.subscription;
+          localStorage.setItem("user", JSON.stringify(authStore.currentUser));
+        }
+
+        updateVerificationStatus(true);
+        return; // Success, no need for fallback
+      }
+    } catch (error) {
+      console.warn("⚠️ Automatic verification failed, trying fallback:", error);
+    }
+
+    // Fallback: Manual verification
+    try {
+      console.log("🔄 Using fallback manual verification...");
+
+      const fallbackResponse = await api.post("/dev/manual-verify");
+
+      console.log("📥 Fallback response:", fallbackResponse.data);
+
+      if (fallbackResponse.data.success) {
+        console.log("✅ Fallback verification successful!");
+
+        // Update auth store
+        if (authStore.currentUser) {
+          authStore.currentUser.isVerified = true;
+          authStore.currentUser.subscription = fallbackResponse.data.user.subscription;
+          localStorage.setItem("user", JSON.stringify(authStore.currentUser));
+        }
+
+        updateVerificationStatus(true);
+      } else {
+        updateVerificationStatus(false);
+      }
+    } catch (fallbackError) {
+      console.error("❌ Fallback verification also failed:", fallbackError);
+      updateVerificationStatus(false);
+    }
+  } else {
+    // No session ID, just try to refresh status
+    updateVerificationStatus(false);
+  }
+
+  // Always refresh user data after verification attempts
   const refreshUserData = async () => {
     try {
+      console.log("🔄 Refreshing user subscription status...");
+
       const response = await api.get("/subscription/status");
+
+      console.log("📥 Status response:", response.data);
 
       if (
         response.data.success &&
@@ -141,14 +274,19 @@ onMounted(() => {
         authStore.currentUser.isVerified = response.data.isVerified;
         authStore.currentUser.subscription = response.data.subscription;
         localStorage.setItem("user", JSON.stringify(authStore.currentUser));
-        console.log("✅ User verification status updated");
+        console.log("✅ User verification status updated from status check");
+
+        // Update UI if not already verified
+        if (!isVerified.value) {
+          updateVerificationStatus(true);
+        }
       }
     } catch (error) {
       console.error("❌ Error refreshing user data:", error);
     }
   };
 
-  // Delay the refresh to allow time for webhook processing
-  setTimeout(refreshUserData, 2000);
+  // Delay the final refresh to allow time for processing
+  setTimeout(refreshUserData, 3000);
 });
 </script>

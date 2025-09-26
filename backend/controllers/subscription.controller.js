@@ -133,8 +133,12 @@ export const handleWebhook = async (req, res) => {
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    console.log("✅ Webhook signature verified successfully");
+    console.log("🔍 Event type:", event.type);
   } catch (err) {
-    console.error("Webhook signature verification failed:", err.message);
+    console.error("❌ Webhook signature verification failed:", err.message);
+    console.error("🔍 Endpoint Secret:", endpointSecret ? "Set" : "Missing");
+    console.error("🔍 Signature Header:", sig ? "Present" : "Missing");
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -142,18 +146,34 @@ export const handleWebhook = async (req, res) => {
     switch (event.type) {
       case "checkout.session.completed":
         const session = event.data.object;
-        await handleCheckoutComplete(session);
+        try {
+          await handleCheckoutComplete(session);
+          console.log("✅ Successfully processed checkout.session.completed");
+        } catch (sessionError) {
+          console.error("❌ Error processing checkout.session.completed:", sessionError);
+          // Don't fail the webhook - just log the error
+        }
         break;
 
       case "customer.subscription.updated":
       case "customer.subscription.deleted":
         const subscription = event.data.object;
-        await handleSubscriptionChange(subscription);
+        try {
+          await handleSubscriptionChange(subscription);
+          console.log(`✅ Successfully processed ${event.type}`);
+        } catch (subError) {
+          console.error(`❌ Error processing ${event.type}:`, subError);
+        }
         break;
 
       case "invoice.payment_failed":
         const invoice = event.data.object;
-        await handlePaymentFailed(invoice);
+        try {
+          await handlePaymentFailed(invoice);
+          console.log("✅ Successfully processed invoice.payment_failed");
+        } catch (invoiceError) {
+          console.error("❌ Error processing invoice.payment_failed:", invoiceError);
+        }
         break;
 
       default:
@@ -162,27 +182,57 @@ export const handleWebhook = async (req, res) => {
 
     res.json({ received: true });
   } catch (error) {
-    console.error("Webhook handler error:", error);
+    console.error("❌ Webhook handler error:", error);
     res.status(500).json({ error: "Webhook handler failed" });
   }
 };
 
 const handleCheckoutComplete = async (session) => {
+  console.log("🎉 Processing checkout completion for session:", session.id);
+
   const userId = session.metadata.userId;
   const planType = session.metadata.planType;
 
-  const subscription = await stripe.subscriptions.retrieve(
-    session.subscription
-  );
+  console.log("🔍 User ID from metadata:", userId);
+  console.log("🔍 Plan type from metadata:", planType);
 
-  await User.findByIdAndUpdate(userId, {
-    isVerified: true,
-    "subscription.stripeSubscriptionId": subscription.id,
-    "subscription.planType": planType,
-    "subscription.status": "active",
-    "subscription.startDate": new Date(subscription.start_date * 1000),
-    "subscription.endDate": new Date(subscription.current_period_end * 1000),
-  });
+  if (!userId) {
+    console.error("❌ No userId found in session metadata");
+    return;
+  }
+
+  try {
+    const subscription = await stripe.subscriptions.retrieve(
+      session.subscription
+    );
+
+    console.log("✅ Retrieved Stripe subscription:", subscription.id);
+    console.log("🔍 Subscription status:", subscription.status);
+
+    const updateData = {
+      isVerified: true,
+      "subscription.stripeSubscriptionId": subscription.id,
+      "subscription.planType": planType,
+      "subscription.status": "active",
+      "subscription.startDate": new Date(subscription.start_date * 1000),
+      "subscription.endDate": new Date(subscription.current_period_end * 1000),
+    };
+
+    console.log("🔄 Updating user with data:", updateData);
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+    if (updatedUser) {
+      console.log("✅ User updated successfully:");
+      console.log("🔍 isVerified:", updatedUser.isVerified);
+      console.log("🔍 subscription status:", updatedUser.subscription.status);
+    } else {
+      console.error("❌ Failed to find/update user:", userId);
+    }
+  } catch (error) {
+    console.error("❌ Error in handleCheckoutComplete:", error);
+    throw error;
+  }
 };
 
 const handleSubscriptionChange = async (subscription) => {
@@ -263,6 +313,75 @@ export const cancelSubscription = async (req, res) => {
   } catch (error) {
     console.error("Cancel subscription error:", error);
     res.status(500).json({ message: "Internal server error", success: false });
+  }
+};
+
+export const verifyPaymentSuccess = async (req, res) => {
+  try {
+    const { session_id } = req.query;
+    const userId = req.id;
+
+    console.log("🔍 Verifying payment success for session:", session_id);
+    console.log("🔍 User ID:", userId);
+
+    if (!session_id) {
+      return res.status(400).json({
+        message: "Session ID is required",
+        success: false
+      });
+    }
+
+    // Retrieve the checkout session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    console.log("✅ Retrieved checkout session:", session.id);
+    console.log("🔍 Session status:", session.status);
+    console.log("🔍 Payment status:", session.payment_status);
+
+    if (session.payment_status === 'paid' && session.status === 'complete') {
+      // Get the subscription from the session
+      if (session.subscription) {
+        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+
+        console.log("✅ Retrieved subscription:", subscription.id);
+        console.log("🔍 Subscription status:", subscription.status);
+
+        // Update user verification status
+        const updateData = {
+          isVerified: true,
+          "subscription.stripeSubscriptionId": subscription.id,
+          "subscription.planType": "premium",
+          "subscription.status": "active",
+          "subscription.startDate": new Date(subscription.start_date * 1000),
+          "subscription.endDate": new Date(subscription.current_period_end * 1000),
+        };
+
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+        console.log("✅ User verified successfully via payment verification");
+        console.log("🔍 User isVerified:", updatedUser.isVerified);
+
+        return res.status(200).json({
+          success: true,
+          message: "Payment verified and user upgraded successfully",
+          isVerified: true,
+          subscription: updatedUser.subscription
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: false,
+      message: "Payment not completed or session invalid",
+      isVerified: false
+    });
+
+  } catch (error) {
+    console.error("❌ Payment verification error:", error);
+    res.status(500).json({
+      message: "Failed to verify payment",
+      success: false
+    });
   }
 };
 

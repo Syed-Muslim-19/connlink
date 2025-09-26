@@ -4,7 +4,8 @@ import {
   handleWebhook,
   getSubscriptionStatus,
   cancelSubscription,
-  syncSubscription
+  syncSubscription,
+  verifyPaymentSuccess
 } from '../controllers/subscription.controller.js';
 import isAuthenticated from '../middlewares/isAuthenticated.js';
 
@@ -14,6 +15,7 @@ router.post('/create', isAuthenticated, createSubscription);
 router.get('/status', isAuthenticated, getSubscriptionStatus);
 router.post('/cancel', isAuthenticated, cancelSubscription);
 router.post('/sync', isAuthenticated, syncSubscription);
-router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
+router.get('/verify-payment', isAuthenticated, verifyPaymentSuccess);
+router.post('/webhook', handleWebhook);
 
 export default router;
