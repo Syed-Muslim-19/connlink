@@ -137,34 +137,22 @@ onMounted(() => {
   <!-- Right Sidebar Container - Clean interface with proper layout -->
   <div class="w-full max-w-sm mx-auto">
     <div
-      class="relative h-[45vh] min-h-[400px] overflow-hidden rounded-2xl shadow-xl"
+      class="relative h-[45vh] min-h-[400px] overflow-hidden rounded-2xl shadow-2xl"
     >
-      <!-- Background with gradient to match LeftSidebar -->
+      <!-- Sidebar content with enhanced glassmorphism effect -->
       <div
-        class="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500"
-      >
-        <!-- Background decorations -->
-        <div class="absolute inset-0 overflow-hidden">
-          <div
-            class="absolute -top-10 -right-10 w-20 h-20 rounded-full bg-white/10 backdrop-blur-3xl"
-          ></div>
-          <div
-            class="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-pink-500/10 backdrop-blur-3xl"
-          ></div>
-          <div
-            class="absolute top-1/3 right-1/2 transform translate-x-1/2 w-16 h-16 rounded-full bg-yellow-400/5 backdrop-blur-3xl"
-          ></div>
-        </div>
-      </div>
-
-      <!-- Sidebar content with glass-morphism -->
-      <div
-        class="relative z-10 h-full flex flex-col bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl overflow-hidden"
+        class="relative z-10 h-full flex flex-col bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
+        style="
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        "
       >
         <!-- Current User Section -->
         <div class="p-4 flex-shrink-0 border-b border-white/10">
           <div
-            class="flex items-center space-x-3 p-3 bg-white/5 rounded-lg backdrop-blur-sm hover:bg-white/10 transition-all duration-200 cursor-pointer"
+            class="flex items-center space-x-3 p-3 bg-black/5 rounded-lg backdrop-blur-sm hover:bg-black/10 transition-all duration-200 cursor-pointer"
             @click="navigateToCurrentUserProfile"
           >
             <!-- User Avatar -->
@@ -172,7 +160,7 @@ onMounted(() => {
               v-if="!currentUser?.profilePicture"
               class="w-12 h-12 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0"
             >
-              <span class="text-white font-bold text-base">
+              <span class="text-gray-900 font-bold text-base">
                 {{ (currentUser?.username || "U").charAt(0).toUpperCase() }}
               </span>
             </div>
@@ -186,7 +174,7 @@ onMounted(() => {
             <!-- User Info -->
             <div class="flex-1 min-w-0">
               <h3
-                class="text-white font-semibold text-sm truncate flex items-center"
+                class="text-gray-900 font-semibold text-sm truncate flex items-center"
               >
                 {{ currentUser?.username || "Guest" }}
                 <VerifiedBadge
@@ -194,7 +182,7 @@ onMounted(() => {
                   size="small"
                 />
               </h3>
-              <p class="text-white/70 text-sm">
+              <p class="text-gray-700 text-sm">
                 {{ currentUser?.bio || "Muslim Bukhari" }}
               </p>
             </div>
@@ -204,10 +192,10 @@ onMounted(() => {
         <!-- Suggested Users Section -->
         <div class="px-4 py-4 flex-1 flex flex-col">
           <div class="flex items-center justify-between mb-3 flex-shrink-0">
-            <h4 class="text-white font-medium text-sm">Suggested for you</h4>
+            <h4 class="text-gray-900 font-medium text-sm">Suggested for you</h4>
             <button
               @click="fetchSuggestedUsers"
-              class="text-white/70 text-xs hover:text-white transition-colors"
+              class="text-gray-700 text-xs hover:text-gray-900 transition-colors"
             >
               See All
             </button>
@@ -220,10 +208,10 @@ onMounted(() => {
               :key="i"
               class="flex items-center space-x-3 p-2"
             >
-              <div class="w-8 h-8 bg-white/20 rounded-full animate-pulse"></div>
+              <div class="w-8 h-8 bg-black/20 rounded-full animate-pulse"></div>
               <div class="flex-1">
-                <div class="h-3 bg-white/20 rounded animate-pulse mb-1"></div>
-                <div class="h-2 bg-white/20 rounded animate-pulse w-3/4"></div>
+                <div class="h-3 bg-black/20 rounded animate-pulse mb-1"></div>
+                <div class="h-2 bg-black/20 rounded animate-pulse w-3/4"></div>
               </div>
             </div>
           </div>
@@ -233,7 +221,7 @@ onMounted(() => {
             <div
               v-for="user in suggestedUsers"
               :key="user._id"
-              class="flex items-center space-x-3 p-2 hover:bg-white/5 rounded-lg transition-all duration-200 cursor-pointer"
+              class="flex items-center space-x-3 p-2 hover:bg-black/5 rounded-lg transition-all duration-200 cursor-pointer"
               @click="navigateToProfile(user._id)"
             >
               <!-- User Avatar -->
@@ -241,7 +229,7 @@ onMounted(() => {
                 v-if="!user.profilePicture"
                 class="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0"
               >
-                <span class="text-white font-semibold text-sm">
+                <span class="text-gray-900 font-semibold text-sm">
                   {{ (user.username || "U").charAt(0).toUpperCase() }}
                 </span>
               </div>
@@ -255,18 +243,18 @@ onMounted(() => {
               <!-- User Info -->
               <div class="flex-1 min-w-0">
                 <h5
-                  class="text-white font-medium text-xs truncate flex items-center"
+                  class="text-gray-900 font-medium text-xs truncate flex items-center"
                 >
                   {{ user.username || "Unknown User" }}
                   <VerifiedBadge :isVerified="user.isVerified" size="small" />
                 </h5>
-                <p class="text-white/60 text-xs">Suggested for you</p>
+                <p class="text-gray-600 text-xs">Suggested for you</p>
               </div>
 
               <!-- Follow Button -->
               <button
                 @click.stop="followUser(user._id)"
-                class="text-blue-300 text-xs font-medium hover:text-blue-200 transition-colors px-2 py-1 rounded hover:bg-white/10"
+                class="text-blue-600 text-xs font-medium hover:text-blue-800 transition-colors px-2 py-1 rounded hover:bg-black/10"
               >
                 Follow
               </button>
@@ -275,15 +263,15 @@ onMounted(() => {
 
           <!-- Empty State -->
           <div v-else class="text-center py-6">
-            <p class="text-white/60 text-sm">No suggestions available</p>
+            <p class="text-gray-600 text-sm">No suggestions available</p>
           </div>
 
           <!-- Footer Links - Compact version -->
-          <div class="mt-4 pt-4 border-t border-white/20 flex-shrink-0">
-            <div class="text-white/40 text-sm">
+          <div class="mt-4 pt-4 border-t border-black/20 flex-shrink-0">
+            <div class="text-gray-500 text-sm">
               <div class="flex flex-wrap gap-x-2 gap-y-1 mb-2"></div>
               <div>
-                <p class="text-white/30">© 2025 ConnLink</p>
+                <p class="text-gray-400">© 2025 ConnLink</p>
               </div>
             </div>
           </div>
@@ -297,7 +285,7 @@ onMounted(() => {
 /* Custom scrollbar styling for consistency */
 .overflow-y-auto {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }
 
 .overflow-y-auto::-webkit-scrollbar {
@@ -309,11 +297,11 @@ onMounted(() => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(0, 0, 0, 0.3);
   border-radius: 2px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 </style>

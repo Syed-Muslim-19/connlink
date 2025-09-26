@@ -150,7 +150,7 @@ const handleUpgrade = async () => {
     <!-- Collapse/Expand Button - Matching Parent UI Style -->
     <button
       @click="toggleSidebar"
-      class="absolute -right-6 top-8 z-10 p-2 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+      class="absolute -right-6 top-8 z-10 p-2 text-gray-900 transform hover:scale-105 transition-all duration-300"
       style="
         background-color: #277cf7;
         border-radius: 0 8px 8px 0;
@@ -172,27 +172,15 @@ const handleUpgrade = async () => {
         />
       </svg>
     </button>
-    <!-- Background with gradient like Login/Signup -->
+    <!-- Sidebar content with enhanced glassmorphism effect -->
     <div
-      class="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500"
-    >
-      <!-- Background decorations -->
-      <div class="absolute inset-0 overflow-hidden">
-        <div
-          class="absolute -top-20 -left-20 w-40 h-40 rounded-full bg-white/10 backdrop-blur-3xl"
-        ></div>
-        <div
-          class="absolute -bottom-20 -right-20 w-48 h-48 rounded-full bg-pink-500/10 backdrop-blur-3xl"
-        ></div>
-        <div
-          class="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-32 h-32 rounded-full bg-yellow-400/5 backdrop-blur-3xl"
-        ></div>
-      </div>
-    </div>
-
-    <!-- Sidebar content with glass-morphism -->
-    <div
-      class="relative h-full bg-white/10 backdrop-blur-xl border-r border-white/20 flex flex-col"
+      class="relative h-full bg-white/5 backdrop-blur-2xl border-r border-white/10 flex flex-col"
+      style="
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      "
     >
       <!-- Logo/Brand -->
       <div class="p-6 border-b border-white/20">
@@ -203,7 +191,7 @@ const handleUpgrade = async () => {
               :class="isCollapsed ? '' : 'mr-3'"
             >
               <svg
-                class="w-6 h-6 text-white"
+                class="w-6 h-6 text-gray-900"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -216,7 +204,7 @@ const handleUpgrade = async () => {
                 ></path>
               </svg>
             </div>
-            <h1 v-if="!isCollapsed" class="text-xl font-bold text-white">
+            <h1 v-if="!isCollapsed" class="text-xl font-bold text-gray-900">
               ConnLink
             </h1>
           </div>
@@ -229,12 +217,12 @@ const handleUpgrade = async () => {
           <!-- Home -->
           <router-link
             to="/"
-            class="flex items-center text-white/80 rounded-xl hover:bg-white/20 transition-all duration-300 group"
+            class="flex items-center text-gray-900 rounded-xl hover:bg-black/10 transition-all duration-300 group"
             :class="isCollapsed ? 'px-3 py-4 justify-center' : 'px-4 py-3'"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <svg
-              class="group-hover:text-white transition-all duration-300"
+              class="group-hover:text-gray-900 transition-all duration-300"
               :class="isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-4'"
               fill="none"
               stroke="currentColor"
@@ -253,12 +241,12 @@ const handleUpgrade = async () => {
           <!-- Search -->
           <router-link
             to="/search"
-            class="flex items-center text-white/80 rounded-xl hover:bg-white/20 transition-all duration-300 group"
+            class="flex items-center text-gray-900 rounded-xl hover:bg-black/10 transition-all duration-300 group"
             :class="isCollapsed ? 'px-3 py-4 justify-center' : 'px-4 py-3'"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <svg
-              class="group-hover:text-white transition-all duration-300"
+              class="group-hover:text-gray-900 transition-all duration-300"
               :class="isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-4'"
               fill="none"
               stroke="currentColor"
@@ -277,12 +265,12 @@ const handleUpgrade = async () => {
           <!-- Explore -->
           <router-link
             to="/explore"
-            class="flex items-center text-white/80 rounded-xl hover:bg-white/20 transition-all duration-300 group"
+            class="flex items-center text-gray-900 rounded-xl hover:bg-black/10 transition-all duration-300 group"
             :class="isCollapsed ? 'px-3 py-4 justify-center' : 'px-4 py-3'"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <svg
-              class="group-hover:text-white transition-all duration-300"
+              class="group-hover:text-gray-900 transition-all duration-300"
               :class="isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-4'"
               fill="none"
               stroke="currentColor"
@@ -301,12 +289,12 @@ const handleUpgrade = async () => {
           <!-- Messages -->
           <router-link
             to="/chat"
-            class="flex items-center text-white/80 rounded-xl hover:bg-white/20 transition-all duration-300 group"
+            class="flex items-center text-gray-900 rounded-xl hover:bg-black/10 transition-all duration-300 group"
             :class="isCollapsed ? 'px-3 py-4 justify-center' : 'px-4 py-3'"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <svg
-              class="group-hover:text-white transition-all duration-300"
+              class="group-hover:text-gray-900 transition-all duration-300"
               :class="isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-4'"
               fill="none"
               stroke="currentColor"
@@ -325,13 +313,13 @@ const handleUpgrade = async () => {
           <!-- Notifications -->
           <router-link
             to="/notifications"
-            class="flex items-center text-white/80 rounded-xl hover:bg-white/20 transition-all duration-300 group"
+            class="flex items-center text-gray-900 rounded-xl hover:bg-black/10 transition-all duration-300 group"
             :class="isCollapsed ? 'px-3 py-4 justify-center' : 'px-4 py-3'"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <div class="flex items-center relative">
               <svg
-                class="group-hover:text-white transition-all duration-300"
+                class="group-hover:text-gray-900 transition-all duration-300"
                 :class="isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-4'"
                 fill="none"
                 stroke="currentColor"
@@ -353,7 +341,7 @@ const handleUpgrade = async () => {
               <!-- Notification badge - adjusted for collapsed state -->
               <span
                 v-if="notificationCount > 0"
-                class="bg-red-500 text-white text-xs rounded-full text-center font-medium backdrop-blur-sm"
+                class="bg-red-500 text-gray-900 text-xs rounded-full text-center font-medium backdrop-blur-sm"
                 :class="
                   isCollapsed
                     ? 'absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-[10px]'
@@ -374,12 +362,12 @@ const handleUpgrade = async () => {
           <!-- Create -->
           <router-link
             to="/create"
-            class="flex items-center text-white/80 rounded-xl hover:bg-white/20 transition-all duration-300 group"
+            class="flex items-center text-gray-900 rounded-xl hover:bg-black/10 transition-all duration-300 group"
             :class="isCollapsed ? 'px-3 py-4 justify-center' : 'px-4 py-3'"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <svg
-              class="group-hover:text-white transition-all duration-300"
+              class="group-hover:text-gray-900 transition-all duration-300"
               :class="isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-4'"
               fill="none"
               stroke="currentColor"
@@ -398,12 +386,12 @@ const handleUpgrade = async () => {
           <!-- Profile -->
           <router-link
             :to="profileRoute"
-            class="flex items-center text-white/80 rounded-xl hover:bg-white/20 transition-all duration-300 group"
+            class="flex items-center text-gray-900 rounded-xl hover:bg-black/10 transition-all duration-300 group"
             :class="isCollapsed ? 'px-3 py-4 justify-center' : 'px-4 py-3'"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <svg
-              class="group-hover:text-white transition-all duration-300"
+              class="group-hover:text-gray-900 transition-all duration-300"
               :class="isCollapsed ? 'w-6 h-6' : 'w-5 h-5 mr-4'"
               fill="none"
               stroke="currentColor"
@@ -434,16 +422,16 @@ const handleUpgrade = async () => {
                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                   />
                 </svg>
-                <span class="text-sm font-semibold text-white"
+                <span class="text-sm font-semibold text-gray-900"
                   >Get Verified!</span
                 >
               </div>
-              <p class="text-xs text-white/80 mb-3">
+              <p class="text-xs text-gray-900 mb-3">
                 Unlock premium features and get the blue checkmark
               </p>
               <button
                 @click="handleUpgrade"
-                class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-sm font-semibold py-2 px-4 rounded-lg transform hover:scale-105 transition-all duration-300"
               >
                 Upgrade Now
               </button>
@@ -463,8 +451,8 @@ const handleUpgrade = async () => {
             class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-r from-pink-400 to-purple-500"
           >
             <img
-              v-if="user.value && user.value.profilePicture"
-              :src="user.value.profilePicture"
+              v-if="user?.profilePicture"
+              :src="user.profilePicture"
               alt="Profile Picture"
               class="w-10 h-10 object-cover rounded-full"
               @error="
@@ -473,20 +461,20 @@ const handleUpgrade = async () => {
                 }
               "
             />
-            <span v-else class="text-white font-semibold">{{
+            <span v-else class="text-gray-900 font-semibold">{{
               userInitial
             }}</span>
           </div>
           <div v-if="!isCollapsed" class="ml-3 flex-1">
-            <p class="text-sm font-semibold text-white">{{ displayName }}</p>
-            <p class="text-xs text-white/60">{{ displayUsername }}</p>
+            <p class="text-sm font-semibold text-gray-900">{{ displayName }}</p>
+            <p class="text-xs text-gray-900/60">{{ displayUsername }}</p>
           </div>
         </div>
 
         <!-- Logout Button -->
         <button
           @click="handleLogout"
-          class="w-full flex items-center text-white/80 rounded-xl hover:bg-red-500/20 hover:text-white transition-all duration-300 group"
+          class="w-full flex items-center text-gray-900 rounded-xl hover:bg-red-500/20 hover:text-gray-900 transition-all duration-300 group"
           :class="isCollapsed ? 'px-3 py-4 justify-center' : 'px-4 py-3'"
         >
           <svg
@@ -511,30 +499,22 @@ const handleUpgrade = async () => {
 
   <!-- Mobile Bottom Navigation -->
   <div class="md:hidden fixed bottom-0 left-0 right-0 z-50">
-    <!-- Background with gradient -->
+    <!-- Bottom nav content with enhanced glassmorphism -->
     <div
-      class="relative bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500"
+      class="relative bg-white/5 backdrop-blur-2xl border-t border-white/10 px-4 py-3"
+      style="
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      "
     >
-      <!-- Background decorations -->
-      <div class="absolute inset-0 overflow-hidden">
-        <div
-          class="absolute -top-10 -left-10 w-20 h-20 rounded-full bg-white/10 backdrop-blur-3xl"
-        ></div>
-        <div
-          class="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-pink-500/10 backdrop-blur-3xl"
-        ></div>
-      </div>
-
-      <!-- Bottom nav content -->
-      <div
-        class="relative bg-white/10 backdrop-blur-xl border-t border-white/20 px-4 py-3"
-      >
         <nav class="flex justify-around items-center">
           <!-- Home -->
           <router-link
             to="/"
-            class="flex flex-col items-center p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            class="flex flex-col items-center p-2 rounded-xl text-gray-900 hover:text-gray-900 hover:bg-black/10 transition-all duration-300"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <div class="relative">
               <svg
@@ -556,8 +536,8 @@ const handleUpgrade = async () => {
           <!-- Search -->
           <router-link
             to="/search"
-            class="flex flex-col items-center p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            class="flex flex-col items-center p-2 rounded-xl text-gray-900 hover:text-gray-900 hover:bg-black/10 transition-all duration-300"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <div class="relative">
               <svg
@@ -579,8 +559,8 @@ const handleUpgrade = async () => {
           <!-- Create -->
           <router-link
             to="/create"
-            class="flex flex-col items-center p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            class="flex flex-col items-center p-2 rounded-xl text-gray-900 hover:text-gray-900 hover:bg-black/10 transition-all duration-300"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <div class="relative">
               <svg
@@ -602,8 +582,8 @@ const handleUpgrade = async () => {
           <!-- Messages -->
           <router-link
             to="/chat"
-            class="flex flex-col items-center p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            class="flex flex-col items-center p-2 rounded-xl text-gray-900 hover:text-gray-900 hover:bg-black/10 transition-all duration-300"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <div class="relative">
               <svg
@@ -625,8 +605,8 @@ const handleUpgrade = async () => {
           <!-- Profile -->
           <router-link
             :to="profileRoute"
-            class="flex flex-col items-center p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
-            exact-active-class="bg-white/20 text-white font-semibold backdrop-blur-sm"
+            class="flex flex-col items-center p-2 rounded-xl text-gray-900 hover:text-gray-900 hover:bg-black/10 transition-all duration-300"
+            exact-active-class="bg-black/10 text-gray-900 font-semibold backdrop-blur-sm"
           >
             <div class="relative">
               <svg
@@ -649,9 +629,9 @@ const handleUpgrade = async () => {
           <div class="relative">
             <button
               @click="toggleMobileMenu"
-              class="flex flex-col items-center p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
+              class="flex flex-col items-center p-2 rounded-xl text-gray-900 hover:text-gray-900 hover:bg-black/10 transition-all duration-300"
               :class="{
-                'bg-white/20 text-white font-semibold backdrop-blur-sm':
+                'bg-black/10 text-gray-900 font-semibold backdrop-blur-sm':
                   showMobileMenu,
               }"
             >
@@ -660,14 +640,14 @@ const handleUpgrade = async () => {
                 <div
                   class="w-6 h-6 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center"
                 >
-                  <span class="text-white text-xs font-semibold">{{
+                  <span class="text-gray-900 text-xs font-semibold">{{
                     userInitial
                   }}</span>
                 </div>
                 <!-- Notification badge on menu button -->
                 <span
                   v-if="notificationCount > 0"
-                  class="absolute -top-1 -right-1 bg-pink-400 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium"
+                  class="absolute -top-1 -right-1 bg-pink-400 text-gray-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium"
                   >{{ notificationCount > 9 ? "9+" : notificationCount }}</span
                 >
               </div>
@@ -676,23 +656,40 @@ const handleUpgrade = async () => {
             <!-- Mobile Dropdown Menu -->
             <div
               v-if="showMobileMenu"
-              class="absolute bottom-full right-0 mb-2 w-48 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 shadow-lg"
+              class="absolute bottom-full right-0 mb-2 w-48 bg-white/5 backdrop-blur-2xl rounded-xl border border-white/10"
+              style="
+                background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+              "
             >
               <!-- User Info -->
               <div class="p-4 border-b border-white/20">
                 <div class="flex items-center">
                   <div
-                    class="w-10 h-10 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center"
+                    class="w-10 h-10 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center overflow-hidden"
                   >
-                    <span class="text-white font-semibold">{{
+                    <img
+                      v-if="user?.profilePicture"
+                      :src="user.profilePicture"
+                      alt="Profile Picture"
+                      class="w-10 h-10 object-cover rounded-full"
+                      @error="
+                        (e) => {
+                          e.target.style.display = 'none';
+                        }
+                      "
+                    />
+                    <span v-else class="text-gray-900 font-semibold">{{
                       userInitial
                     }}</span>
                   </div>
                   <div class="ml-3">
-                    <p class="text-sm font-semibold text-white">
+                    <p class="text-sm font-semibold text-gray-900">
                       {{ displayName }}
                     </p>
-                    <p class="text-xs text-white/60">{{ displayUsername }}</p>
+                    <p class="text-xs text-gray-900/60">{{ displayUsername }}</p>
                   </div>
                 </div>
               </div>
@@ -702,7 +699,7 @@ const handleUpgrade = async () => {
                 <router-link
                   to="/notifications"
                   @click="showMobileMenu = false"
-                  class="flex items-center px-3 py-2 text-white/80 rounded-lg hover:bg-white/10 transition-all duration-300"
+                  class="flex items-center px-3 py-2 text-gray-900 rounded-lg hover:bg-black/10 transition-all duration-300"
                 >
                   <div class="relative">
                     <svg
@@ -728,7 +725,7 @@ const handleUpgrade = async () => {
                   <span class="text-sm">Notifications</span>
                   <span
                     v-if="notificationCount > 0"
-                    class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium"
+                    class="ml-auto bg-red-500 text-gray-900 text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium"
                     >{{ notificationCount }}</span
                   >
                 </router-link>
@@ -736,7 +733,7 @@ const handleUpgrade = async () => {
                 <router-link
                   to="/explore"
                   @click="showMobileMenu = false"
-                  class="flex items-center px-3 py-2 text-white/80 rounded-lg hover:bg-white/10 transition-all duration-300"
+                  class="flex items-center px-3 py-2 text-gray-900 rounded-lg hover:bg-black/10 transition-all duration-300"
                 >
                   <svg
                     class="w-4 h-4 mr-3"
@@ -758,10 +755,10 @@ const handleUpgrade = async () => {
                 <button
                   v-if="!user?.isVerified"
                   @click="
-                    handleUpgrade;
+                    handleUpgrade();
                     showMobileMenu = false;
                   "
-                  class="w-full flex items-center px-3 py-2 text-white/80 rounded-lg hover:bg-gradient-to-r hover:from-yellow-400/20 hover:to-orange-500/20 transition-all duration-300"
+                  class="w-full flex items-center px-3 py-2 text-gray-900 rounded-lg hover:bg-gradient-to-r hover:from-yellow-400/20 hover:to-orange-500/20 transition-all duration-300"
                 >
                   <svg
                     class="w-4 h-4 mr-3 text-yellow-400"
@@ -779,7 +776,7 @@ const handleUpgrade = async () => {
 
                 <button
                   @click="handleLogout"
-                  class="w-full flex items-center px-3 py-2 text-white/80 rounded-lg hover:bg-red-500/20 hover:text-white transition-all duration-300"
+                  class="w-full flex items-center px-3 py-2 text-gray-900 rounded-lg hover:bg-red-500/20 hover:text-gray-900 transition-all duration-300"
                 >
                   <svg
                     class="w-4 h-4 mr-3"
@@ -802,7 +799,6 @@ const handleUpgrade = async () => {
         </nav>
       </div>
     </div>
-  </div>
 
   <!-- Mobile Menu Overlay (click to close) -->
   <div
