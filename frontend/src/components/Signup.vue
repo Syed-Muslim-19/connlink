@@ -133,11 +133,9 @@ const getPasswordStrength = () => {
 </script>
 
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 flex items-center justify-center p-4"
-  >
-    <!-- Background decorations -->
-    <div class="absolute inset-0 overflow-hidden">
+  <div class="min-h-screen bg-white flex items-center justify-center p-4">
+    <!-- Background decorations (hidden on white background) -->
+    <div class="absolute inset-0 overflow-hidden hidden">
       <div
         class="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-white/10 backdrop-blur-3xl"
       ></div>
