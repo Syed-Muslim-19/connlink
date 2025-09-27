@@ -144,7 +144,7 @@ const handleUpgrade = async () => {
 <template>
   <!-- Desktop Sidebar -->
   <div
-    class="hidden md:block relative h-screen transition-all duration-300 md:border-r md:border-gray-200/10"
+    class="hidden md:block relative h-screen transition-all duration-300 md:border-r md:border-gray-200"
     :class="isCollapsed ? 'w-24' : 'w-64'"
   >
     <!-- Collapse/Expand Button - Matching Parent UI Style -->
@@ -186,10 +186,6 @@ const handleUpgrade = async () => {
       <div class="p-6 border-b border-white/20">
         <div class="flex items-center justify-center">
           <div class="flex items-center justify-center">
-            <div
-              class="w-10 h-10 rounded-2xl flex items-center justify-center"
-              :class="isCollapsed ? '' : 'mr-3'"
-            ></div>
             <h1 v-if="!isCollapsed" class="text-xl font-bold text-gray-900">
               ConnLink
             </h1>
@@ -484,14 +480,15 @@ const handleUpgrade = async () => {
   </div>
 
   <!-- Mobile Bottom Navigation -->
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50">
+  <div
+    class="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-gray-300"
+  >
     <!-- Bottom nav content with enhanced glassmorphism -->
     <div
-      class="relative bg-white/5 backdrop-blur-2xl border-t border-white/10 px-4 py-3"
+      class="relative bg-white border-t border-white/10 px-4 py-3"
       style="
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background: white;
+
         border-top: 1px solid rgba(255, 255, 255, 0.1);
       "
     >
