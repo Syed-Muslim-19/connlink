@@ -150,9 +150,9 @@ const handleUpgrade = async () => {
     <!-- Collapse/Expand Button - Matching Parent UI Style -->
     <button
       @click="toggleSidebar"
-      class="absolute -right-6 top-8 z-10 p-2 text-gray-900 transform hover:scale-105 transition-all duration-300"
+      class="absolute -right-6 top-8 z-10 p-2 text-white transform hover:scale-105 transition-all duration-300"
       style="
-        background-color: #277cf7;
+        background-color: grey;
         border-radius: 0 8px 8px 0;
         border-left: none;
       "

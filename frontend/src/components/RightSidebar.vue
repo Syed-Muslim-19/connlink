@@ -137,7 +137,7 @@ onMounted(() => {
   <!-- Right Sidebar Container - Clean interface with proper layout -->
   <div class="w-full max-w-sm mx-auto">
     <div
-      class="relative h-[45vh] min-h-[400px] overflow-hidden rounded-2xl shadow-2xl"
+      class="relative h-[45vh] min-h-[400px] overflow-hidden rounded-2xl border border-gray-300"
     >
       <!-- Sidebar content with enhanced glassmorphism effect -->
       <div
