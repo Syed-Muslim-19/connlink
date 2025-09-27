@@ -183,7 +183,7 @@ onMounted(() => {
                 />
               </h3>
               <p class="text-gray-700 text-sm">
-                {{ currentUser?.bio || "Muslim Bukhari" }}
+                {{ currentUser?.bio || "No Bio yet..." }}
               </p>
             </div>
           </div>
