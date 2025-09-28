@@ -16,8 +16,20 @@ import Login from "./components/Login.vue";
 import Signup from "./components/Signup.vue";
 import SubscriptionSuccess from "./components/SubscriptionSuccess.vue";
 import SubscriptionCancel from "./components/SubscriptionCancel.vue";
+import LandingPage from "./components/LandingPage.vue";
 
 const routes = [
+  // Landing page route
+  {
+    path: "/landing",
+    name: "LandingPage",
+    component: LandingPage,
+  },
+  // Root redirect to landing
+  {
+    path: "/",
+    redirect: "/landing",
+  },
   // Authentication routes (no sidebar)
   {
     path: "/login",
@@ -40,13 +52,13 @@ const routes = [
     name: "SubscriptionCancel",
     component: SubscriptionCancel,
   },
-  // Main layout with nested routes (with sidebar)
+  // Main layout with nested routes (with sidebar) - keep all original paths
   {
     path: "/",
     component: MainLayout,
     children: [
       {
-        path: "",
+        path: "home",
         name: "Home",
         component: Home,
       },
@@ -113,6 +125,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   const publicRoutes = [
+    "/landing",
     "/login",
     "/signup",
     "/subscription/success",
@@ -155,16 +168,16 @@ router.beforeEach((to, from, next) => {
   }
 
   if (requiresAuth && !authStore.isAuthenticated) {
-    // User is not authenticated, redirect to login
-    console.log("🚫 Redirecting to login - not authenticated");
-    next("/login");
+    // User is not authenticated, redirect to landing
+    console.log("🚫 Redirecting to landing - not authenticated");
+    next("/landing");
   } else if (
-    (to.path === "/login" || to.path === "/signup") &&
+    (to.path === "/landing" || to.path === "/login" || to.path === "/signup") &&
     authStore.isAuthenticated
   ) {
     // User is already authenticated, redirect to home
     console.log("✅ Redirecting to home - already authenticated");
-    next("/");
+    next("/home");
   } else {
     // Allow navigation
     console.log("✅ Allowing navigation to:", to.path);

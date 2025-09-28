@@ -95,12 +95,12 @@ const handleLogout = async () => {
 
   // Force navigation by using window.location as fallback
   try {
-    await router.replace("/login");
+    await router.replace("/landing");
     console.log("🔴 Router navigation completed");
   } catch (error) {
     console.error("🔴 Router navigation failed:", error);
     console.log("🔴 Using window.location fallback");
-    window.location.href = "/login";
+    window.location.href = "/landing";
   }
 };
 
