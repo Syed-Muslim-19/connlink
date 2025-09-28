@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="pt-4 px-4 sm:px-6 lg:px-0 space-y-6">
     <!-- Comment Dialog -->
     <CommentDialog
       :show="showCommentDialog"
