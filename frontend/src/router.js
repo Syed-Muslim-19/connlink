@@ -112,7 +112,12 @@ const router = createRouter({
 // Route guard to protect authenticated routes
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  const publicRoutes = ["/login", "/signup", "/subscription/success", "/subscription/cancel"];
+  const publicRoutes = [
+    "/login",
+    "/signup",
+    "/subscription/success",
+    "/subscription/cancel",
+  ];
   const requiresAuth = !publicRoutes.includes(to.path);
 
   // Check if token exists in sessionStorage as fallback
