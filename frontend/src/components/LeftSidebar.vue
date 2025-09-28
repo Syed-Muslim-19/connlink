@@ -425,34 +425,41 @@ const handleUpgrade = async () => {
       <!-- User Info and Logout -->
       <div class="border-t border-white/20 p-4">
         <!-- User Profile Section -->
-        <div
-          class="flex items-center mb-4 p-3 bg-white/10 rounded-xl backdrop-blur-sm"
-          :class="isCollapsed ? 'justify-center' : ''"
+        <router-link
+          to="/profile/me"
+          @click="showMobileMenu = false"
+          class="flex items-center px-3 py-2 text-gray-900 rounded-lg hover:bg-black/10 transition-all duration-300"
         >
           <div
-            class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-r from-pink-400 to-purple-500"
+            class="flex items-center mb-4 p-3 bg-white/10 rounded-xl backdrop-blur-sm"
+            :class="isCollapsed ? 'justify-center' : ''"
           >
-            <img
-              v-if="user?.profilePicture"
-              :src="user.profilePicture"
-              alt="Profile Picture"
-              class="w-10 h-10 object-cover rounded-full"
-              @error="
-                (e) => {
-                  e.target.style.display = 'none';
-                }
-              "
-            />
-            <span v-else class="text-gray-900 font-semibold">{{
-              userInitial
-            }}</span>
+            <div
+              class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-r from-pink-400 to-purple-500"
+            >
+              <img
+                v-if="user?.profilePicture"
+                :src="user.profilePicture"
+                alt="Profile Picture"
+                class="w-10 h-10 object-cover rounded-full"
+                @error="
+                  (e) => {
+                    e.target.style.display = 'none';
+                  }
+                "
+              />
+              <span v-else class="text-gray-900 font-semibold">{{
+                userInitial
+              }}</span>
+            </div>
+            <div v-if="!isCollapsed" class="ml-3 flex-1">
+              <p class="text-sm font-semibold text-gray-900">
+                {{ displayName }}
+              </p>
+              <p class="text-xs text-gray-900/60">{{ displayUsername }}</p>
+            </div>
           </div>
-          <div v-if="!isCollapsed" class="ml-3 flex-1">
-            <p class="text-sm font-semibold text-gray-900">{{ displayName }}</p>
-            <p class="text-xs text-gray-900/60">{{ displayUsername }}</p>
-          </div>
-        </div>
-
+        </router-link>
         <!-- Logout Button -->
         <button
           @click="handleLogout"
@@ -621,9 +628,20 @@ const handleUpgrade = async () => {
             <div class="relative">
               <!-- Use user avatar for menu -->
               <div
-                class="w-6 h-6 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center"
+                class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-r from-pink-400 to-purple-500"
               >
-                <span class="text-gray-900 text-xs font-semibold">{{
+                <img
+                  v-if="user?.profilePicture"
+                  :src="user.profilePicture"
+                  alt="Profile Picture"
+                  class="w-10 h-10 object-cover rounded-full"
+                  @error="
+                    (e) => {
+                      e.target.style.display = 'none';
+                    }
+                  "
+                />
+                <span v-else class="text-gray-900 font-semibold">{{
                   userInitial
                 }}</span>
               </div>
@@ -641,9 +659,9 @@ const handleUpgrade = async () => {
             v-if="showMobileMenu"
             class="absolute bottom-full right-0 mb-2 w-48 bg-white/5 backdrop-blur-2xl rounded-xl border border-white/10"
             style="
-              background: rgba(255, 255, 255, 0.05);
+              background: white;
               backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
+
               border: 1px solid rgba(255, 255, 255, 0.1);
             "
           >
