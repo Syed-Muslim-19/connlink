@@ -151,42 +151,49 @@ onMounted(() => {
       >
         <!-- Current User Section -->
         <div class="p-4 flex-shrink-0 border-b border-white/10">
-          <div
-            class="flex items-center space-x-3 p-3 bg-black/5 rounded-lg backdrop-blur-sm hover:bg-black/10 transition-all duration-200 cursor-pointer"
-            @click="navigateToCurrentUserProfile"
+          <router-link
+            to="/profile/me"
+            @click="showMobileMenu = false"
+            class="flex items-center text-gray-900 rounded-lg transition-all duration-300"
           >
-            <!-- User Avatar -->
             <div
-              v-if="!currentUser?.profilePicture"
-              class="w-12 h-12 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0"
+              class="flex items-center space-x-3 p-3 bg-black/5 rounded-lg backdrop-blur-sm hover:bg-black/10 transition-all duration-200 cursor-pointer"
+              @click="navigateToCurrentUserProfile"
             >
-              <span class="text-gray-900 font-bold text-base">
-                {{ (currentUser?.username || "U").charAt(0).toUpperCase() }}
-              </span>
-            </div>
-            <img
-              v-else
-              :src="currentUser.profilePicture"
-              :alt="currentUser.username"
-              class="w-12 h-12 rounded-full object-cover flex-shrink-0"
-            />
+              <!-- User Avatar -->
 
-            <!-- User Info -->
-            <div class="flex-1 min-w-0">
-              <h3
-                class="text-gray-900 font-semibold text-sm truncate flex items-center"
+              <div
+                v-if="!currentUser?.profilePicture"
+                class="w-12 h-12 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0"
               >
-                {{ currentUser?.username || "Guest" }}
-                <VerifiedBadge
-                  :isVerified="currentUser?.isVerified"
-                  size="small"
-                />
-              </h3>
-              <p class="text-gray-700 text-sm">
-                {{ currentUser?.bio || "No Bio yet..." }}
-              </p>
+                <span class="text-gray-900 font-bold text-base">
+                  {{ (currentUser?.username || "U").charAt(0).toUpperCase() }}
+                </span>
+              </div>
+              <img
+                v-else
+                :src="currentUser.profilePicture"
+                :alt="currentUser.username"
+                class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+              />
+
+              <!-- User Info -->
+              <div class="flex-1 min-w-0">
+                <h3
+                  class="text-gray-900 font-semibold text-sm truncate flex items-center"
+                >
+                  {{ currentUser?.username || "Guest" }}
+                  <VerifiedBadge
+                    :isVerified="currentUser?.isVerified"
+                    size="small"
+                  />
+                </h3>
+                <p class="text-gray-700 text-sm">
+                  {{ currentUser?.bio || "No Bio yet..." }}
+                </p>
+              </div>
             </div>
-          </div>
+          </router-link>
         </div>
 
         <!-- Suggested Users Section -->

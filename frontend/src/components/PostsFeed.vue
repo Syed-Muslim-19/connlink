@@ -45,7 +45,10 @@
           <div>
             <h3 class="font-semibold text-gray-900 flex items-center">
               {{ post.author.username }}
-              <VerifiedBadge :isVerified="post.author.isVerified" size="small" />
+              <VerifiedBadge
+                :isVerified="post.author.isVerified"
+                size="small"
+              />
             </h3>
             <p class="text-sm text-gray-500">
               {{ formatDate(post.createdAt) }}
@@ -111,7 +114,10 @@
           <p v-if="post.caption" class="text-gray-900 mb-2">
             <span class="font-semibold inline-flex items-center">
               {{ post.author.username }}
-              <VerifiedBadge :isVerified="post.author.isVerified" size="small" />
+              <VerifiedBadge
+                :isVerified="post.author.isVerified"
+                size="small"
+              />
             </span>
             {{ post.caption }}
           </p>
@@ -128,7 +134,10 @@
             >
               <span class="font-semibold inline-flex items-center">
                 {{ comment.author.username }}
-                <VerifiedBadge :isVerified="comment.author.isVerified" size="small" />
+                <VerifiedBadge
+                  :isVerified="comment.author.isVerified"
+                  size="small"
+                />
               </span>
               {{ comment.text }}
             </p>

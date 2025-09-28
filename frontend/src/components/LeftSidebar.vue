@@ -428,7 +428,7 @@ const handleUpgrade = async () => {
         <router-link
           to="/profile/me"
           @click="showMobileMenu = false"
-          class="flex items-center px-3 py-2 text-gray-900 rounded-lg hover:bg-black/10 transition-all duration-300"
+          class="flex items-center text-gray-900 rounded-lg hover:bg-black/10 transition-all duration-300"
         >
           <div
             class="flex items-center mb-4 p-3 bg-white/10 rounded-xl backdrop-blur-sm"
